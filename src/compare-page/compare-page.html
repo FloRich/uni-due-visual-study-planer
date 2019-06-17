@@ -54,6 +54,7 @@
               .range([ 0, width ])
               .domain(myGroups)
               .padding(0.01);
+
             svg.append("g")
               .attr("transform", "translate(0," + height + ")")
               .call(d3.axisBottom(x))
@@ -85,6 +86,9 @@
                 .attr("y", function(d) { return y(d.name) })
                 .attr("width", x.bandwidth() )
                 .attr("height", y.bandwidth() )
+                .on("click", (d)=> {
+                    console.log(d)
+                })
                 .style("fill", function(d) { return myColor(d.value)} )
         
             
