@@ -1,4 +1,4 @@
-[
+var subjects =  [
   {
     "url": "https://www.meinprof.de/uni/kurs/72828",
     "name": "Politikmanagement in westlichen Demokratien, Lehrforschungsprojekt",
