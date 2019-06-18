@@ -31,18 +31,20 @@
             }
         }
 
-        let dataTextLengths = {};
         let colormap = {};
         let stats_names = [];
+        let type_filter_settings = new Set();
         let colors = d3.schemeSet3;
-        let filterOut = ["Vorlesung"];
 
         //mapping colors to attributes colors
         for (let key in selected_studyprogram.stats) {
             stats_names.push(key)
         }
+        //initializing colormap and settings for filtering
         for ( let index = 0; index < stats_names.length; index++) {
-            colormap[stats_names[index]] = colors[index]
+            colormap[stats_names[index]] = colors[index];
+            type_filter_settings.add(stats_names[index])
+
         }
 
         function appendLegend() {
@@ -56,8 +58,13 @@
                 .text((d) => d)
                 .style("background-color", (d) => colormap[d])
                 .on("click", (d) => {
-                    filterOut = [];
-
+                    //toggle setting for filter
+                    if (type_filter_settings.has(d)) {
+                        type_filter_settings.delete(d)
+                    } else {
+                        type_filter_settings.add(d)
+                    }
+                    //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
                     drawRadialTree(selected_studyprogram, root)
                 });
         }
@@ -118,26 +125,47 @@
             return children;
         };
 
+        function getDataForAllCategories(data) {
+            let categories = [];
+            for (let datum of data) {
+                if (!isSubject(datum)){
+                    categories.push(datum);
+                }
+            }
+            return categories;
+        }
+
+        function getDataForFilteredSubjects(data) {
+            let subjects = [];
+            for (let datum of data) {
+                if (isSubject(datum) && isSubjectFiltered(datum)){
+                    subjects.push(datum);
+                }
+            }
+            return subjects;
+        }
+
         function isSubject(d) {
             return d.data.hasOwnProperty('subject_type')
         }
 
-        function filterOutSubjects(d) {
+        function isSubjectFiltered(d) {
             if (d.data.hasOwnProperty('subject_type')) {
-                for (let filter of filterOut) {
-                    if (d.data.subject_type !== filter){
-                        return false
-                    }
+                if (type_filter_settings.has(d.data.subject_type)){
+                    return true
+                } else {
+                    return false;
                 }
             }
-            return true
+            return true;
         }
 
         function drawRadialTree(studyprogram, root) {
+            let dataTextLengths = {};
 
             // create links
-            var link = g.selectAll(".link")
-                .data(root.descendants().slice(1).filter(filterOutSubjects))
+            let link = g.selectAll(".link")
+                .data(root.descendants().slice(1).filter(isSubjectFiltered))
                 .enter().append("path")
                 .attr("class", "link")
                 .attr("d", function(d) {
@@ -147,36 +175,41 @@
                         + " " + project(d.parent.x, d.parent.y);
                 });
 
-            //create nodes
-            var node = g.selectAll(".node")
-                .data(root.descendants().slice(1).filter(filterOutSubjects))
+            /*
+                Handling nodes for categories
+             */
+
+            // add node
+            let node = g.selectAll(".node")
+                .data(getDataForAllCategories(root.descendants().slice(1)))
                 .enter()
                 .append("g")
-                .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf") + (isSubject(d)? " subject": ""); })
+                .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
                 .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; })
                 .on("click", (d) => {
                     console.log(d);
                     console.log(dataTextLengths[d.data.id]);
                 });
 
-            //create text
-            var text = node.append("text")
-                .attr("x", function(d) { return d.x < 180 === !d.children ? 6 : -6; })
-                .attr("y", (d) => {
-                    // divide between node and leaf. Since the name of nodes will be split into chunks,
-                    // the y alignment has to be adjusted, so that the whole text-block is centered to the node
-                    let lines = splitTextIntoLinesWithThreeWords(d.data.name);
-                    let height = lines.length * 90;
-                    let y = "-"+height/200 +"em";
-                    return d.children? y: ".31em"})
-                .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
-                .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
+            // add text
+           let textCategory = node
+                .append("text")
+               .attr("x", function(d) { return d.x < 180 === !d.children ? 6 : -6; })
+               .attr("y", (d) => {
+                   // divide between node and leaf. Since the name of nodes will be split into chunks,
+                   // the y alignment has to be adjusted, so that the whole text-block is centered to the node
+                   let lines = splitTextIntoLinesWithThreeWords(d.data.name);
+                   let height = lines.length * 90;
+                   let y = "-"+height/200 +"em";
+                   return d.children? y: ".31em"})
+               .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
+               .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; });
 
 
             // create tspans
             // append a tspan to each text. The name of the subject will only be visible through a tspan,
             // because sometimes the name is too long and has to be divided into smaller chunks
-            text.selectAll("tspan.text")
+           textCategory.selectAll("tspan.text")
                 .data(d => {
                     let titles = d.children? splitTextIntoLinesWithThreeWords(d.data.name): [d.data.name];
                     let data = [];
@@ -193,16 +226,59 @@
                 .attr("dx", 0)
                 .attr("dy", (d) => {
                     return d.subject? ".0em" : ".90em";
-                })
-                .each(function(d) {
-                    dataTextLengths[d.id] =this.getComputedTextLength();
                 });
 
-            // updating subjects
-            d3.selectAll(".subject")
-                .insert("rect",":first-child")
+           /*
+                Handling subjects
+            */
+
+            // bind to data
+            let subjectNodes = g.selectAll('.subject')
+                .data(getDataForFilteredSubjects(root.descendants().slice(1)),d => d.data.id);
+
+            // on exit
+            subjectNodes
+                .exit()
+                .remove();
+
+            // add subjects
+            let subjectsEnter = subjectNodes
+                .enter()
+                .append("g")
+                    .attr("class", "node--leaf subject")
+                    .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; })
+                    .on("click", (d) => {
+                        console.log(d);
+                        console.log(dataTextLengths[d.data.id]);
+                    });
+            // add a rect as background color
+            let subjectTextBackgroundEnter = subjectsEnter
+                .append('rect');
+
+            // add text to the subject's node
+            let subjectTextEnter = subjectsEnter
+                .append("text")
+                    .attr("x", function(d) { return d.x < 180 === !d.children ? 6 : -6; })
+                    .attr("y", (d) => {
+                        // divide between node and leaf. Since the name of nodes will be split into chunks,
+                        // the y alignment has to be adjusted, so that the whole text-block is centered to the node
+                        let lines = splitTextIntoLinesWithThreeWords(d.data.name);
+                        let height = lines.length * 90;
+                        let y = "-"+height/200 +"em";
+                        return d.children? y: ".31em"})
+                    .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
+                    .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
+                    .append("tspan")
+                        .text((d) => d.data.name)
+                        .each(function(d) {
+                            dataTextLengths[d.data.id] = this.getComputedTextLength();
+                        });
+
+            // update background of subject's node
+            subjectTextBackgroundEnter
+                .merge(subjectTextBackgroundEnter)
                 .attr("x", (d,i) => {
-                    return d.x < 180 ===    isSubject(d) ? 0 : -dataTextLengths[d.data.id];
+                    return d.x < 180 ===  isSubject(d) ? 5 : - dataTextLengths[d.data.id] -5;
                 })
                 .attr("y", (d) => {
                     return d.x < 180? -5: -5;
@@ -220,11 +296,27 @@
                     }
                 });
 
-            // remove functions
-            d3.selectAll(".node")
-                .data(root.descendants().slice(1).filter(filterOutSubjects))
+            //updating links when filtered
+            g.selectAll(".link")
+                .data(root.descendants().slice(1).filter(isSubjectFiltered))
+                .attr("d", function(d) {
+                    return "M" + project(d.x, d.y)
+                        + "C" + project(d.x, (d.y + d.parent.y) / 2)
+                        + " " + project(d.parent.x, (d.y + d.parent.y) / 2)
+                        + " " + project(d.parent.x, d.parent.y);
+                });
+
+            // remove links
+            g.selectAll(".link")
+                .data(root.descendants().slice(1).filter(isSubjectFiltered))
                 .exit()
-                .remove()
+                .remove();
+
+            // remove functions
+            g.selectAll(".node")
+                .data(getDataForAllCategories(root.descendants().slice(1)))
+                .exit()
+                .remove();
         };
 
         // Devide a string into chunks that contain 3 words per chunk
@@ -236,7 +328,7 @@
 
         // start drawing the tree
         appendLegend();
-        var root = tree(d3.hierarchy(selected_studyprogram, children_func));
+        let root = tree(d3.hierarchy(selected_studyprogram, children_func));
         drawRadialTree(selected_studyprogram, root)
 
 
