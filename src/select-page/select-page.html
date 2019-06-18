@@ -9,7 +9,12 @@
     <script type="text/javascript" src="select-page.js"></script>
 </head>
 <body>
-    <svg width="1400" height="1060"></svg>
+    <main id="content">
+        <svg width="1400" height="1060"></svg>
+    </main>
+    <nav id="legend">
+
+    </nav>
     <script>
         let selected_studyprogram = null;
 
@@ -24,6 +29,37 @@
                 }
                 console.log(selected_studyprogram);
             }
+        }
+
+        let dataTextLengths = {};
+        let colormap = {};
+        let stats_names = [];
+        let colors = d3.schemeSet3;
+        let filterOut = ["Vorlesung"];
+
+        //mapping colors to attributes colors
+        for (let key in selected_studyprogram.stats) {
+            stats_names.push(key)
+        }
+        for ( let index = 0; index < stats_names.length; index++) {
+            colormap[stats_names[index]] = colors[index]
+        }
+
+        function appendLegend() {
+            d3.select('#legend')
+                .selectAll(".color-value")
+                .data(stats_names, (map) => {
+                })
+                .enter()
+                .append('div')
+                .attr("class", "color-value")
+                .text((d) => d)
+                .style("background-color", (d) => colormap[d])
+                .on("click", (d) => {
+                    filterOut = [];
+
+                    drawRadialTree(selected_studyprogram, root)
+                });
         }
 
         function merge_studyprogram_semesters(program_semester1, program_semester2) {
@@ -82,10 +118,26 @@
             return children;
         };
 
+        function isSubject(d) {
+            return d.data.hasOwnProperty('subject_type')
+        }
+
+        function filterOutSubjects(d) {
+            if (d.data.hasOwnProperty('subject_type')) {
+                for (let filter of filterOut) {
+                    if (d.data.subject_type !== filter){
+                        return false
+                    }
+                }
+            }
+            return true
+        }
+
         function drawRadialTree(studyprogram, root) {
 
+            // create links
             var link = g.selectAll(".link")
-                .data(root.descendants().slice(1))
+                .data(root.descendants().slice(1).filter(filterOutSubjects))
                 .enter().append("path")
                 .attr("class", "link")
                 .attr("d", function(d) {
@@ -95,15 +147,19 @@
                         + " " + project(d.parent.x, d.parent.y);
                 });
 
+            //create nodes
             var node = g.selectAll(".node")
-                .data(root.descendants().slice(1))
-                .enter().append("g")
-                .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-                .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; });
+                .data(root.descendants().slice(1).filter(filterOutSubjects))
+                .enter()
+                .append("g")
+                .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf") + (isSubject(d)? " subject": ""); })
+                .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; })
+                .on("click", (d) => {
+                    console.log(d);
+                    console.log(dataTextLengths[d.data.id]);
+                });
 
-            //node.append("circle")
-            //    .attr("r", 2.5);
-
+            //create text
             var text = node.append("text")
                 .attr("x", function(d) { return d.x < 180 === !d.children ? 6 : -6; })
                 .attr("y", (d) => {
@@ -116,6 +172,8 @@
                 .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
                 .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
 
+
+            // create tspans
             // append a tspan to each text. The name of the subject will only be visible through a tspan,
             // because sometimes the name is too long and has to be divided into smaller chunks
             text.selectAll("tspan.text")
@@ -123,7 +181,7 @@
                     let titles = d.children? splitTextIntoLinesWithThreeWords(d.data.name): [d.data.name];
                     let data = [];
                     for (let title of titles) {
-                        data.push({title: title, leaf: d.children? false: true})
+                        data.push({title: title, id: d.data.id, subject: isSubject(d)? true: false})
                     }
                     return data;
                 })
@@ -134,8 +192,39 @@
                 .attr("x", 0)
                 .attr("dx", 0)
                 .attr("dy", (d) => {
-                    return d.leaf? ".0em" : ".90em";
+                    return d.subject? ".0em" : ".90em";
+                })
+                .each(function(d) {
+                    dataTextLengths[d.id] =this.getComputedTextLength();
                 });
+
+            // updating subjects
+            d3.selectAll(".subject")
+                .insert("rect",":first-child")
+                .attr("x", (d,i) => {
+                    return d.x < 180 ===    isSubject(d) ? 0 : -dataTextLengths[d.data.id];
+                })
+                .attr("y", (d) => {
+                    return d.x < 180? -5: -5;
+                })
+                .attr("width", (d) => dataTextLengths[d.data.id]+"px")
+                .attr("height", "10px")
+                .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
+                .attr("fill", (d) => {
+                    if (d.data.hasOwnProperty('subject_type')) {
+                        let value = colormap[d.data.subject_type];
+                        value = (value === undefined)? "white":value;
+                        return value;
+                    } else {
+                        return "white"
+                    }
+                });
+
+            // remove functions
+            d3.selectAll(".node")
+                .data(root.descendants().slice(1).filter(filterOutSubjects))
+                .exit()
+                .remove()
         };
 
         // Devide a string into chunks that contain 3 words per chunk
@@ -144,7 +233,9 @@
             return text.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,2}\b/g)
         }
 
+
         // start drawing the tree
+        appendLegend();
         var root = tree(d3.hierarchy(selected_studyprogram, children_func));
         drawRadialTree(selected_studyprogram, root)
 
