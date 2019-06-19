@@ -2,7 +2,7 @@ body {
 }
 
 main {
-    width: 100%;
+    width: 75%;
     height: 100%
 }
 
@@ -10,9 +10,11 @@ nav {
     position: absolute;
     right: 0px;
     top: 0px;
-    height: 100%;
     width: 25%;
     border: 1px solid black;
+}
+rect:hover {
+    cursor: pointer;
 }
 
 #toggle-button {
@@ -44,6 +46,19 @@ nav {
 
 .node--internal text {
     text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+.node text:hover {
+    cursor: default;
+    font-size: large;
+}
+.selected {
+    font-size: xx-large;
+    font-weight: bold;
+}
+.subject:hover {
+    cursor: pointer;
+    font-size: large;
 }
 
 .link {

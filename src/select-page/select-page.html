@@ -19,7 +19,7 @@
         <div class="card">
             <div class="card-header">
                 <h2>
-                    Step 1: Mark courses of interest
+                    Step 1: Mark subjects of interest
                 </h2>
             </div>
             <div class="card-body">
@@ -28,8 +28,12 @@
                     <div id="radial-filter">
                     </div>
                 </div>
-                <div id="subject-selection" class="card-text">
+                <svg id="bar-chart"></svg>
+                <div>
+                    <h6>Marked subjects:</h6>
+                    <div id="subject-selection">
 
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,6 +42,7 @@
         toggle
     </div>
     <script type="text/javascript" src="radial-tree.js"></script>
+    <script src="bar-chart.js"></script>
     <script>
         let selected_studyprogram = null;
 
@@ -90,7 +95,7 @@
                     type_filter_settings.add(d)
                 }
                 //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
-                renderLegend();
+                renderFilter();
                 RadialTree.draw(root)
             }
 
@@ -126,9 +131,45 @@
                 .style("background-color", (d) => colormap[d]);
         }
 
-        function renderSelection() {
-            d3.select('#subject-selection')
-                .text("Selected: " + RadialTree.selection.length)
+        function renderSelection(data) {
+            console.log(data);
+            let selections = d3.select("#subject-selection")
+                .selectAll("div")
+                .data(data);
+
+            //on remove
+            selections.exit().remove();
+
+            let enter = selections
+                .enter()
+                .append("div");
+
+            d3.select("#subject-selection").selectAll("div").merge(enter)
+                .attr("class","card-text")
+                .style("color", (d) => d3.rgb(colormap[d.data.subject_type]).darker())
+                .text((d) => d.data.name);
+        }
+
+        function mapSubjectSelectionToBarData(subjectSelection) {
+            let barData = [];
+            let subjectTypes = new Map();
+            for (let d of subjectSelection) {
+                let type = d.data.subject_type;
+                if(subjectTypes.has(type)) {
+                    subjectTypes.set(type, subjectTypes.get(type)+1);
+                } else {
+                    subjectTypes.set(type, 1);
+                }
+            }
+
+            for (let key of subjectTypes.keys()){
+                barData.push({
+                    "categories": key,
+                    "value": subjectTypes.get(key)
+                })
+            }
+
+            return barData;
         }
 
         function merge_studyprogram_semesters(program_semester1, program_semester2) {
@@ -151,11 +192,23 @@
 
         // start drawing the tree
         renderFilter();
+
+        //render barchart
+        let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
+        BarChart.init("bar-chart",nav_width,200);
+
         let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
-            console.log("render selection")
-            renderSelection();
+            console.log("render selection");
+            renderFilter();
+            if (RadialTree.selection.length > 0) {
+                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.selection));
+            }
+            renderSelection(RadialTree.selection);
+
         });
         RadialTree.draw(root);
+
+
 
 
     </script>

@@ -84,14 +84,16 @@ var RadialTree = (function() {
         return text.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,2}\b/g)
     }
 
-    function selectSubject(subject) {
-        selectedSubjects.push(subject);
-
+    function selectSubject(d) {
+        d.isSelected = true;
+        selectedSubjects.push(d);
     }
 
-    function deselectSubject(subject) {
-        let index = selectedSubjects.indexOf(subject);
-        selectedSubjects = selectedSubjects.slice(index,index);
+    function deselectSubject(d) {
+        let index = selectedSubjects.indexOf(d);
+        console.log(index);
+        selectedSubjects.splice(index,1);
+        d.isSelected = false;
     }
 
     // public objects
@@ -187,41 +189,40 @@ var RadialTree = (function() {
                 .enter()
                 .append("g")
                 .attr("class", "node--leaf subject")
-                .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; })
-                .on("click", (d) => {
-                    if (selectedSubjects.indexOf(d) >= 0) {
-                        deselectSubject(d.data);
-                    } else {
-                        selectSubject(d.data);
-                    }
+                .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; });
 
-                    onUpdateFunction();
-                });
             // add a rect as background color
             let subjectTextBackgroundEnter = subjectsEnter
                 .append('rect');
 
             // add text to the subject's node
             let subjectTextEnter = subjectsEnter
-                .append("text")
+                .append("text");
+
+            d3.selectAll(".subject text")
+                .on("click", (d) => {
+                    if (selectedSubjects.indexOf(d) >= 0) {
+                        deselectSubject(d);
+                    } else {
+                        selectSubject(d);
+                    }
+
+                   RadialTree.draw(root);
+                })
+                .attr("class", function(d) {return (d.isSelected)? "selected": ""})
                 .attr("x", function(d) { return d.x < 180 === !d.children ? 6 : -6; })
-                .attr("y", (d) => {
-                    // divide between node and leaf. Since the name of nodes will be split into chunks,
-                    // the y alignment has to be adjusted, so that the whole text-block is centered to the node
-                    let lines = splitTextIntoLinesWithThreeWords(d.data.name);
-                    let height = lines.length * 90;
-                    let y = "-"+height/200 +"em";
-                    return d.children? y: ".31em"})
+                .attr("y", (d) => ".31em")
                 .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
                 .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
-                .append("tspan")
+                .attr("fill", (d) => d3.rgb(colormap[d.data.subject_type]).darker())
                 .text((d) => d.data.name)
                 .each(function(d) {
                     dataTextLengths[d.data.id] = this.getComputedTextLength();
-                });
+                })
+                .exit().remove();
 
             // update background of subject's node
-            subjectTextBackgroundEnter
+            /*subjectTextBackgroundEnter
                 .merge(subjectTextBackgroundEnter)
                 .attr("x", (d,i) => {
                     return d.x < 180 ===  isSubject(d) ? 5 : - dataTextLengths[d.data.id] -5;
@@ -240,7 +241,7 @@ var RadialTree = (function() {
                     } else {
                         return "white"
                     }
-                });
+                });*/
 
             //updating links when filtered
             g.selectAll(".link")
