@@ -10,10 +10,23 @@ nav {
     position: absolute;
     right: 0px;
     top: 0px;
-    width: 200px;
+    height: 100%;
+    width: 25%;
     border: 1px solid black;
 }
-#legend {
+
+#toggle-button {
+    position: absolute;;
+    right: 0px;
+    top: 0px;
+    z-index: 2;
+    width: 50px;
+    height: 50px;
+    background: #1d2124;
+    cursor: pointer;
+}
+#side-menu .card {
+    height: 100%;
     background-color: white;
 }
 

@@ -47,8 +47,8 @@ var RadialTree = (function() {
     }
 
     function isSubjectFiltered(d) {
-        if (d.data.hasOwnProperty('subject_type')) {
-            if (type_filter_settings.has(d.data.subject_type)){
+        if (isSubject(d)) {
+            if (type_filter_settings.has(d.data.subject_type) && type_filter_settings.has(d.data.semester)){
                 return true
             } else {
                 return false;
