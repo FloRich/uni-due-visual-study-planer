@@ -50,27 +50,48 @@
             type_filter_settings.add(stats_names[index])
 
         }
+        function onLegendElementClick(d) {
+            //toggle setting for filter
+            if (type_filter_settings.has(d)) {
+                type_filter_settings.delete(d)
+            } else {
+                type_filter_settings.add(d)
+            }
+            //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
+            renderLegend();
+            RadialTree.draw(root)
+        }
+        function renderLegend() {
+            let divs = d3.select('#legend')
+                .selectAll('.filter')
+                .data(stats_names, d => d);
 
-        function appendLegend() {
-            d3.select('#legend')
-                .selectAll(".color-value")
-                .data(stats_names, (map) => {
-                })
+            let divsEnter = divs
                 .enter()
                 .append('div')
-                .attr("class", "color-value")
-                .text((d) => d)
-                .style("background-color", (d) => colormap[d])
+                .attr("class","filter")
                 .on("click", (d) => {
-                    //toggle setting for filter
-                    if (type_filter_settings.has(d)) {
-                        type_filter_settings.delete(d)
-                    } else {
-                        type_filter_settings.add(d)
-                    }
-                    //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
-                    RadialTree.draw(root)
+                    onLegendElementClick(d)
                 });
+
+
+            let checkboxes = divsEnter
+                .append('input')
+                .attr("type","checkbox");
+
+            d3.select('#legend').selectAll('input')
+                .property("checked", (d) => {
+                    console.log(type_filter_settings.has(d));
+                    return type_filter_settings.has(d);
+                });
+
+            let types = divsEnter
+                .append("span")
+                .attr("class", "color-value");
+
+            types.merge(types)
+                .text((d) => d)
+                .style("background-color", (d) => colormap[d]);
         }
 
         function merge_studyprogram_semesters(program_semester1, program_semester2) {
@@ -92,7 +113,7 @@
         }
 
         // start drawing the tree
-        appendLegend();
+        renderLegend();
         let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings);
         RadialTree.draw(root);
 

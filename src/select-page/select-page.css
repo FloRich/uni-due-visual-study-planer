@@ -13,7 +13,14 @@ nav {
     width: 200px;
     border: 1px solid black;
 }
+#legend {
+    background-color: white;
+}
 
+.filter:hover{
+    cursor: pointer;
+    box-shadow: 0 0  1em rgba(0, 0, 0, 0.2);
+}
 .node text {
     font: 10px sans-serif;
 }
