@@ -2,7 +2,8 @@ var RadialTree = (function() {
     // private objects
     let colormap = {};
     let type_filter_settings = {};
-
+    let selectedSubjects = []
+    let onUpdateFunction;
 
     let svg = d3.select("svg"),
         width = +svg.attr("width"),
@@ -83,13 +84,27 @@ var RadialTree = (function() {
         return text.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,2}\b/g)
     }
 
+    function selectSubject(subject) {
+        selectedSubjects.push(subject);
+
+    }
+
+    function deselectSubject(subject) {
+        let index = selectedSubjects.indexOf(subject);
+        selectedSubjects = selectedSubjects.slice(index,index);
+    }
+
     // public objects
     return {
-        init: (studyprogram, map_with_colors, settings_for_type_filter) => {
+        init: (studyprogram, map_with_colors, settings_for_type_filter, onUpdate) => {
             type_filter_settings = settings_for_type_filter;
-            colormap = map_with_colors
+            colormap = map_with_colors;
+            onUpdateFunction = onUpdate;
             return tree(d3.hierarchy(selected_studyprogram, children_func));
         },
+        selection: selectedSubjects,
+        select: selectSubject,
+        deselect: deselectSubject,
         draw: (root) => {
             let dataTextLengths = {};
 
@@ -115,11 +130,7 @@ var RadialTree = (function() {
                 .enter()
                 .append("g")
                 .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-                .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; })
-                .on("click", (d) => {
-                    console.log(d);
-                    console.log(dataTextLengths[d.data.id]);
-                });
+                .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; });
 
             // add text
             let textCategory = node
@@ -178,8 +189,13 @@ var RadialTree = (function() {
                 .attr("class", "node--leaf subject")
                 .attr("transform", function(d) { return "translate(" + project(d.x, d.y) + ")"; })
                 .on("click", (d) => {
-                    console.log(d);
-                    console.log(dataTextLengths[d.data.id]);
+                    if (selectedSubjects.indexOf(d) >= 0) {
+                        deselectSubject(d.data);
+                    } else {
+                        selectSubject(d.data);
+                    }
+
+                    onUpdateFunction();
                 });
             // add a rect as background color
             let subjectTextBackgroundEnter = subjectsEnter
@@ -247,6 +263,8 @@ var RadialTree = (function() {
                 .data(getDataForAllCategories(root.descendants().slice(1)))
                 .exit()
                 .remove();
+
+            onUpdateFunction();
         }
 
     }

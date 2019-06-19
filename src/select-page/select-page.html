@@ -26,8 +26,10 @@
                 <div>
                     <span>Show only:</span>
                     <div id="radial-filter">
-
                     </div>
+                </div>
+                <div id="subject-selection" class="card-text">
+
                 </div>
             </div>
         </div>
@@ -78,19 +80,20 @@
             let navMenu = document.getElementById('side-menu');
             navMenu.style.setProperty("display", (navMenu.style.display === "none") ? "block":"none");
         }
-        function onLegendElementClick(d) {
-            //toggle setting for filter
-            if (type_filter_settings.has(d)) {
-                type_filter_settings.delete(d)
-            } else {
-                type_filter_settings.add(d)
-            }
-            //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
-            renderLegend();
-            RadialTree.draw(root)
-        }
 
-        function renderLegend() {
+        function renderFilter() {
+            function onLegendElementClick(d) {
+                //toggle setting for filter
+                if (type_filter_settings.has(d)) {
+                    type_filter_settings.delete(d)
+                } else {
+                    type_filter_settings.add(d)
+                }
+                //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
+                renderLegend();
+                RadialTree.draw(root)
+            }
+
             let divs = d3.select('#radial-filter')
                 .selectAll('.filter')
                 .data(stats_names, d => d);
@@ -123,6 +126,11 @@
                 .style("background-color", (d) => colormap[d]);
         }
 
+        function renderSelection() {
+            d3.select('#subject-selection')
+                .text("Selected: " + RadialTree.selection.length)
+        }
+
         function merge_studyprogram_semesters(program_semester1, program_semester2) {
             //merge categories
             program = program_semester1;
@@ -142,8 +150,11 @@
         }
 
         // start drawing the tree
-        renderLegend();
-        let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings);
+        renderFilter();
+        let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
+            console.log("render selection")
+            renderSelection();
+        });
         RadialTree.draw(root);
 
 
