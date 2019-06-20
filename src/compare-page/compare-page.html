@@ -8,6 +8,7 @@
     <script src="d3.js"></script>
 </head>
 <body>
+
     <div id="heatmap"></div>
     <script>
 
@@ -34,6 +35,26 @@
                 myVars.push(element.name)
             });
 
+            var vega = ({
+               width: 1000,
+               height: 400,
+  
+                mark: 'rect',
+               selection: { highlight: {type: "single"}} ,
+               encoding: {
+               x: { field: 'myGroups', type: 'o' },
+               y: { field: 'myVars', type: 'n' },
+                  color: {
+                  field: 'AQHI',
+                  type: 'q',
+                  scale: { scheme: 'blueorange', domain: [1.5, 5.5] }
+                 },
+                 opacity: {
+                 condition: { selection: "highlight", value: 1},
+                 value: 0.5
+    }
+  }
+})
             flattened_data = []
         
             subjects.forEach(element => {
@@ -92,6 +113,10 @@
                 .attr("width", x.bandwidth() )
               .attr("height", y.bandwidth() )
               .style("fill", function(d) { return myColor(d.value)} )
+
+          
+                  
+          
       </script>
   </body>
 </html>
