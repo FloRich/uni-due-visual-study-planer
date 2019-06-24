@@ -3,16 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <title>Select Subjects</title>
+    <link rel="stylesheet" href="select-page.css"/>
+    <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
+    <!--<script type="text/javascript" src="../scripts/bootstrap/bootstrap.bundle.min.js"></script>-->
+    <script src="d3.js"></script>
+    <script type="text/javascript" src="../data/studyprograms.js"></script>
     <script type="text/javascript" src="select-page.js"></script>
+
 </head>
 <body>
-    <!-- Navigation -->
-<nav class="w3-bar w3-black">
-        <a href="index.html">Home</a>
-        <a href="start-page.html">start-page</a>
-        <a href="compare-page.html">compare-page</a>
-        <a href="select-page.html" class="selected" >select-page</a>
-      </nav>
-    <script src="d3.js"></script>
+    <main id="content">
+        <svg width="1400" height="1060"></svg>
+    </main>
+    <nav id="side-menu">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    Step 1: Mark subjects of interest
+                </h2>
+            </div>
+            <div class="card-body">
+                <div>
+                    <span>Show only:</span>
+                    <div id="radial-filter">
+                    </div>
+                </div>
+                <svg id="bar-chart"></svg>
+                <div>
+                    <h6>Marked subjects:</h6>
+                    <div id="subject-selection">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div id="toggle-button" onclick="toggleNavigation()">
+        toggle
+    </div>
+    <script type="text/javascript" src="radial-tree.js"></script>
+    <script src="bar-chart.js"></script>
+    <script>
+        let selected_studyprogram = null;
+
+        for (let program of studyprograms) {
+            if (program['name'] === "Angewandte Informatik, Master of Science, PO 2012") {
+                console.log(program.categories)
+                if (selected_studyprogram == null) {
+                    selected_studyprogram = program;
+                    console.log(program.categories)
+                } else {
+                    selected_studyprogram = merge_studyprogram_semesters(program, selected_studyprogram)
+                }
+                console.log(selected_studyprogram);
+            }
+        }
+
+        let colormap = {};
+        let stats_names = [];
+        let type_filter_settings = new Set();
+        let colors = d3.schemeSet3;
+        let originalNavigationWidth = document.getElementById('side-menu').getAttribute("width");
+
+        //mapping colors to attributes colors
+        for (let key in selected_studyprogram.stats) {
+            stats_names.push(key)
+        }
+        //initializing colormap and settings for filtering
+        for ( let index = 0; index < stats_names.length; index++) {
+            colormap[stats_names[index]] = colors[index];
+            type_filter_settings.add(stats_names[index])
+        }
+
+        stats_names.push("SoSe 2019");
+        stats_names.push("WiSe 2018/19");
+        type_filter_settings.add("SoSe 2019");
+        type_filter_settings.add("WiSe 2018/19");
+
+        function toggleNavigation() {
+            console.log("toggle");
+            let navMenu = document.getElementById('side-menu');
+            navMenu.style.setProperty("display", (navMenu.style.display === "none") ? "block":"none");
+        }
+
+        function renderFilter() {
+            function onLegendElementClick(d) {
+                //toggle setting for filter
+                if (type_filter_settings.has(d)) {
+                    type_filter_settings.delete(d)
+                } else {
+                    type_filter_settings.add(d)
+                }
+                //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
+                renderFilter();
+                RadialTree.draw(root)
+            }
+
+            let divs = d3.select('#radial-filter')
+                .selectAll('.filter')
+                .data(stats_names, d => d);
+
+            let divsEnter = divs
+                .enter()
+                .append('div')
+                .attr("class","filter")
+                .on("click", (d) => {
+                    onLegendElementClick(d)
+                });
+
+
+            let checkboxes = divsEnter
+                .append('input')
+                .attr("type","checkbox");
+
+            d3.select('#radial-filter').selectAll('input')
+                .property("checked", (d) => {
+                    console.log(type_filter_settings.has(d));
+                    return type_filter_settings.has(d);
+                });
+
+            let types = divsEnter
+                .append("span")
+                .attr("class", "color-value");
+
+            types.merge(types)
+                .text((d) => d)
+                .style("background-color", (d) => colormap[d]);
+        }
+
+        function renderSelection(data) {
+            console.log(data);
+            let selections = d3.select("#subject-selection")
+                .selectAll("div")
+                .data(data);
+
+            //on remove
+            selections.exit().remove();
+
+            let enter = selections
+                .enter()
+                .append("div");
+
+            d3.select("#subject-selection").selectAll("div").merge(enter)
+                .attr("class","card-text")
+                .style("color", (d) => d3.rgb(colormap[d.data.subject_type]).darker())
+                .text((d) => d.data.name);
+        }
+
+        function mapSubjectSelectionToBarData(subjectSelection) {
+            let barData = [];
+            let subjectTypes = new Map();
+            for (let d of subjectSelection) {
+                let type = d.data.subject_type;
+                if(subjectTypes.has(type)) {
+                    subjectTypes.set(type, subjectTypes.get(type)+1);
+                } else {
+                    subjectTypes.set(type, 1);
+                }
+            }
+
+            for (let key of subjectTypes.keys()){
+                barData.push({
+                    "categories": key,
+                    "value": subjectTypes.get(key)
+                })
+            }
+
+            return barData;
+        }
+
+        function merge_studyprogram_semesters(program_semester1, program_semester2) {
+            //merge categories
+            program = program_semester1;
+            program.categories = program_semester1.categories.concat(program_semester2.categories);
+
+            // merge statistics
+            new_stats = program_semester2.stats;
+            for (key in program.stats) {
+                if (new_stats.hasOwnProperty(key)) {
+                    new_stats[key] += program.stats[key];
+                } else {
+                    new_stats[key] = program.stats[key];
+                }
+            }
+
+            return program;
+        }
+
+        // start drawing the tree
+        renderFilter();
+
+        //render barchart
+        let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
+        BarChart.init("bar-chart",nav_width,200);
+
+        let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
+            console.log("render selection");
+            renderFilter();
+            if (RadialTree.selection.length > 0) {
+                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.selection));
+            }
+            renderSelection(RadialTree.selection);
+
+        });
+        RadialTree.draw(root);
+
+
+
+
+    </script>
 </body>
 </html>
