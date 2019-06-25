@@ -6,13 +6,6 @@ main {
     height: 100%
 }
 
-nav {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    width: 25%;
-    border: 1px solid black;
-}
 rect:hover {
     cursor: pointer;
 }
@@ -22,14 +15,26 @@ rect:hover {
     right: 0px;
     top: 0px;
     z-index: 2;
-    width: 50px;
-    height: 50px;
-    background: #1d2124;
+    width: 56px;
+    height: 40px;
     cursor: pointer;
 }
-#side-menu .card {
+
+#side-menu {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 350px;
+    border: 1px solid black;
+}
+
+#side-menu > .card .card-body{
     height: 100%;
-    background-color: white;
+    min-height: 100%;
+}
+
+#side-menu .card > .card-header > h2 {
+    padding-right: 56px;
 }
 
 .filter:hover{
