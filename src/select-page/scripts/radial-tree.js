@@ -104,9 +104,16 @@ var RadialTree = (function() {
             onUpdateFunction = onUpdate;
             return tree(d3.hierarchy(selected_studyprogram, children_func));
         },
-        selection: selectedSubjects,
-        select: selectSubject,
-        deselect: deselectSubject,
+        loadSelectedSubjects: (root, subjects) => {
+            for (let node of root.descendants()) {
+                for (let subject of subjects) {
+                    if (node.data.id === subject.id) {
+                        selectSubject(node)
+                    }
+                }
+            }
+        },
+        selection: () => selectedSubjects,
         draw: (root) => {
             let dataTextLengths = {};
 

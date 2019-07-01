@@ -30,7 +30,12 @@
                 </div>
                 <svg id="bar-chart"></svg>
                 <div>
-                    <h6>Marked subjects:</h6>
+                    <div>
+                        <h4>Marked subjects:</h4>
+                        <button type="button" class="btn btn-outline-warning" onclick="clearSelection()">
+                            Clear
+                        </button>
+                    </div>
                     <div id="subject-selection">
 
                     </div>
@@ -49,7 +54,8 @@
             </button>
     </div>
     <script type="text/javascript" src="scripts/radial-tree.js"></script>
-    <script src="scripts/bar-chart.js"></script>
+    <script type="text/javascript" src="scripts/bar-chart.js"></script>
+    <script type="text/javascript" src="../scripts/app-local-storage.js"></script>
     <script>
         let selected_studyprogram = null;
 
@@ -157,6 +163,11 @@
                 .text((d) => d.data.name);
         }
 
+        function clearSelection() {
+            //todo do cleaning
+
+        }
+
         function mapSubjectSelectionToBarData(subjectSelection) {
             let barData = [];
             let subjectTypes = new Map();
@@ -210,9 +221,16 @@
             if (RadialTree.selection.length > 0) {
                 BarChart.draw(mapSubjectSelectionToBarData(RadialTree.selection));
             }
-            renderSelection(RadialTree.selection);
+            renderSelection(RadialTree.selection());
+            //update local storage
+            // wird bei jedem rendern aufgerufen... auch wenn man mit der maus drüber geht
+            setSelectedSubjects(RadialTree.selection());
 
         });
+
+        //load selected subjects and initialze radial tree with it
+        let prev_selection = loadSelectedSubjects();
+        RadialTree.loadSelectedSubjects(root, prev_selection);
         RadialTree.draw(root);
 
     </script>

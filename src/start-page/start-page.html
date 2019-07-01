@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <title>Select your Studyprogram</title>
     <script type="text/javascript" src="start-page.js"></script>
+
+    <script type="text/javascript" src="../data/studyprograms.js"></script>
     <script src="d3.js"></script>
+
 </head>
 <body>
 <!-- Navigation -->
@@ -13,7 +16,18 @@
   <a href="start-page.html" class="selected">start-page</a>
   <a href="compare-page.html">compare-page</a>
   <a href="select-page.html" >select-page</a>
-</nav>
+    <select id="programs" value="select a studyprogram">
 
+    </select>
+</nav>
+<script>
+    d3.select("#programs")
+        .selectAll('option')
+        .data(studyprograms)
+        .enter()
+    .append("option")
+    .attr("value", d => d.name)
+    .text(d => d.name)
+</script>
 </body>
 </html>
