@@ -5,17 +5,41 @@
     <title>Compare Subjects</title>
     <script type="text/javascript" src="compare-page.js"></script>
      <script src="subject_ratings.js"></script>
+    <script src="../scripts/app-local-storage.js"></script>
     <script src="d3.js"></script>
 </head>
 <body>
 
     <div id="heatmap"></div>
     <script>
+            // load selected courses
+            let selected_subjects = loadSelectedSubjects();
+            console.log(subjects);
+            console.log(selected_subjects);
+            // save ratings by the subjects name
+            subjects_dict = new Map();
+            for (let subject of subjects) {
+                subjects_dict.set(subject.name, subject);
+            }
+            console.log(subjects_dict);
+
+            // add ratings to the subject if the exists.
+            for (let sub of selected_subjects) {
+                let rating = subjects_dict.get(sub.name);
+                if (rating != undefined) {
+                    sub['rating'] = rating;
+                    console.log(sub)
+                } else {
+                    sub['rating'] = {};
+                }
+            }
+
+
 
             // set the dimensions and margins of the graph
             var margin = {top: 30, right: 30, bottom: 30, left: 300},
-              width = 1000 - margin.left - margin.right,
-              height = 20000 - margin.top - margin.bottom;
+              width = 800 - margin.left - margin.right,
+              height = 500 - margin.top - margin.bottom;
             
             // append the svg object to the body of the page
             var svg = d3.select("#heatmap")
@@ -28,10 +52,11 @@
             
             // Labels of row and columns
             var myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort']
-            var myVars = []
+            var myVars = [];
 
-            subjects.slice(10)
-            subjects.forEach(element => {
+            //subjects.slice(10);
+            console.log(selected_subjects)
+            selected_subjects.forEach(element => {
                 myVars.push(element.name)
             });
 
@@ -57,15 +82,15 @@
 })
             flattened_data = []
         
-            subjects.forEach(element => {
-                for (attrib of myGroups) {
+            selected_subjects.forEach(element => {
+                for (let attrib of myGroups) {
                     flattened_data.push({
                         name: element.name,
                         type: attrib,
-                        value: element[""+attrib]
+                        value: element.rating[""+attrib] || 0
                     })
                 }
-            })
+            });
 
 
             
