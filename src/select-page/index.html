@@ -15,7 +15,10 @@
 
   <!-- Custom styles for this template -->
   <link href="css/scrolling-nav.css" rel="stylesheet">
+    <script type="text/javascript" src="../data/studyprograms.js"></script>
+    <script src="../scripts/d3.js"></script>
 
+    <script type="text/javascript" src="../scripts/app-local-storage.js"></script>
 </head>
 
 <body id="page-top">
@@ -51,19 +54,11 @@
   <section id="select page" class="bg-light">
     <div class="container">
       <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="col text-center">
-            <a href="file:///D:/Uni%20DUE/chatti/LAVA/Project/uni-due-visual-study-planer-develop/src/select-page/select-page.html">
-            <button type="button" class="btn btn-primary btn-lg">Select</button></a>
-            <a href="file:///D:/Uni%20DUE/chatti/LAVA/Project/uni-due-visual-study-planer-develop/src/compare-page/compare-page.html">
-            <button type="button" class="btn btn-secondary btn-lg">Compare</button></a>
-
-        </div>
-        </div>
+          <select id="programs"></select>
       </div>
-
+        <button class="btn btn-outline-info" onclick="go_to_selection_page()">Next</button>
     </div>
-  </section>>
+  </section>
 
   <section id="about">
     <div class="container">
@@ -116,6 +111,24 @@
   <!-- Custom JavaScript for this theme -->
   <script src="js/scrolling-nav.js"></script>
 
+  <script>
+      function go_to_selection_page() {
+          console.log("clicked");
+          let program_selection = document.getElementById('programs');
+          console.log(studyprograms[program_selection.selectedIndex]);
+          setSelectedStudyprogram(studyprograms[program_selection.selectedIndex])
+      }
+
+      // initialize options for select-Tag.
+      d3.select("#programs")
+          .selectAll('option')
+          .data(studyprograms)
+          .enter()
+          .append("option")
+          .attr("value", d => d.name)
+          .text(d => d.name)
+
+  </script>
 </body>
 
 </html>

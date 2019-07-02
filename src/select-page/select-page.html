@@ -61,14 +61,10 @@
 
         for (let program of studyprograms) {
             if (program['name'] === "Angewandte Informatik, Master of Science, PO 2012") {
-                console.log(program.categories)
+                console.log(program.categories);
                 if (selected_studyprogram == null) {
                     selected_studyprogram = program;
-                    console.log(program.categories)
-                } else {
-                    selected_studyprogram = merge_studyprogram_semesters(program, selected_studyprogram)
                 }
-                console.log(selected_studyprogram);
             }
         }
 
