@@ -1,3 +1,8 @@
+body {
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: auto 350px;
+}
 .sws-subject {
     display: flex;
     flex-flow: row;
@@ -20,12 +25,49 @@
     margin-left: 10px;
 }
 
-#sws {
-    position: absolute;
-    top: 5px;
-    right: 0px;
+#side-menu {
+    grid-row: 1/1;
+    grid-column: 2/2;
+    top: 0px;
+    width: 350px;
+}
+
+#removed_subjects {
+
+}
+
+#side-menu > .card .card-body{
+    height: 100%;
+    min-height: 100%;
+}
+
+#side-menu .card > .card-header > h2 {
+    padding-right: 56px;
 }
 
 #amount_of_sws {
     font-size: 1.5em;
+}
+#heatmap {
+    margin-top:10%;
+    display: flex;
+    justify-content: center;
+}
+
+main {
+    grid-row: 1/1;
+    grid-column: 1/2;
+}
+
+rect {
+    stroke: whitesmoke;
+}
+
+.domain {
+    stroke-opacity: 0;
+}
+.cross-line {
+    stroke: palevioletred;
+    stroke-width: 5;
+    stroke-linecap: round;
 }
