@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Compare Subjects</title>
+    <link rel="stylesheet" href="compare-page.css"/>
     <script type="text/javascript" src="compare-page.js"></script>
      <script src="subject_ratings.js"></script>
     <script src="../scripts/app-local-storage.js"></script>
@@ -11,9 +12,16 @@
 <body>
 
     <div id="heatmap"></div>
+
+    <section id="sws">
+        <div id="amount_of_sws">
+
+        </div>
+    </section>
+
     <script>
             // load selected courses
-            let selected_subjects = loadSelectedSubjects();
+            var selected_subjects = loadSelectedSubjects();
             console.log(subjects);
             console.log(selected_subjects);
             // save ratings by the subjects name
@@ -143,5 +151,74 @@
                   
           
       </script>
+    <script>
+        let max_sws = 0;
+        let max_amount_of_sws = 0;
+        let number_of_different_sws = new Map();
+        let max_height = 500;
+
+        // calculate heigt of one sws
+        for (subject of selected_subjects) {
+            let sws = subject.sws.replace(/ /g,'');
+            if (sws === "") {
+                sws = 1;
+                subject.sws = "*";
+            } else {
+                max_amount_of_sws += +sws;
+                sws = +sws;
+            }
+            let count_sws = number_of_different_sws.get(subject.sws);
+            count_sws = (count_sws === undefined)? 1: count_sws;
+            number_of_different_sws.set(subject.sws,count_sws +1)
+            max_sws += sws;
+        }
+        let height_per_sws = 12;//max_height/max_sws;
+
+        console.log(number_of_different_sws);
+        let domain = [];
+        for (let k of number_of_different_sws.keys()) {
+            domain.push(k);
+        }
+        let nameScale = d3.scaleBand()
+            .range([0, 1])
+            .domain(domain);
+
+
+        //This is for rendering the sws chart
+        let sws = d3.select('#sws')
+            .selectAll('div')
+            .data(selected_subjects);
+
+        sws.exit().remove();
+
+        let divs = sws.enter()
+            .append('div')
+            .attr('class','sws-subject')
+            .style("height", d => d.sws * height_per_sws +"px");
+
+        divs
+            .append('div')
+            .attr('class','sws-value')
+            .style("background-color", d => d3.color(d3.interpolateSinebow(nameScale(d.sws))).darker())
+            .style("line-height", d => ((d.sws === -1)? 1: d.sws) * height_per_sws +"px")
+            .text(d => ((d.sws === -1)? "*": d.sws));
+
+        divs
+            .append('div')
+            .attr('class','sws-name')
+            .style("font-size", function(d) {
+                return 0.75 * height_per_sws+"px";
+            })
+            .style("color", d => {
+                return d3.color(d3.interpolateSinebow(nameScale(d.sws))).darker();
+            })
+            //.style("line-height", d => d.sws * height_per_sws +"px")
+            .text(d => d.name);
+
+        d3.select('#amount_of_sws')
+            .html("SWS: &Sigma; "+max_amount_of_sws);
+
+
+    </script>
   </body>
 </html>
