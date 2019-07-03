@@ -30,15 +30,11 @@
                 </div>
                 <svg id="bar-chart"></svg>
                 <div>
-                    <div>
-                        <h4>Marked subjects:</h4>
-                        <button type="button" class="btn btn-outline-warning" onclick="clearSelection()">
-                            Clear
-                        </button>
-                    </div>
-                    <div id="subject-selection">
+                    <h4>Marked subjects:</h4>
+                    <hr/>
+                    <ul id="subject-selection">
 
-                    </div>
+                    </ul>
                 </div>
                 <button type="button"
                         class="float-right btn btn-outline-info"
@@ -140,27 +136,40 @@
         }
 
         function renderSelection(data) {
-            console.log(data);
             let selections = d3.select("#subject-selection")
-                .selectAll("div")
-                .data(data);
+                .selectAll("li")
+                .data(data, d => d.data.name);
 
             //on remove
             selections.exit().remove();
 
             let enter = selections
                 .enter()
-                .append("div");
+                .append("li")
+                .append("div")
+                .attr("class","selected-item");
+            let text = enter
+                .append("div")
+                .attr("class","selected-item-text");
 
-            d3.select("#subject-selection").selectAll("div").merge(enter)
+            let revertAction = enter
+                .append("img")
+                .attr("class", "selected-item-revert")
+                .attr("src", "https://img.icons8.com/color/20/000000/undelete.png")
+                .on("click", (d) => removeSelectedSubject(d));
+
+            d3.select("#subject-selection").selectAll(".selected-item-text").merge(text)
                 .attr("class","card-text")
                 .style("color", (d) => d3.rgb(colormap[d.data.subject_type]).darker())
                 .text((d) => d.data.name);
+
         }
 
-        function clearSelection() {
-            //todo do cleaning
-
+        function removeSelectedSubject(subject) {
+            //remove
+            RadialTree.removeSelectedSubjectNode(subject);
+            //update viz
+            RadialTree.draw(root);
         }
 
         function mapSubjectSelectionToBarData(subjectSelection) {
@@ -193,6 +202,9 @@
                 .attr("width", bounds.width);
         }
 
+        //load selected subjects and initialze radial tree with it
+        let prev_selection = loadSelectedSubjects();
+
         adjustFullSizeOfRadialTreeSvg();
         // start drawing the tree
         renderFilter();
@@ -215,8 +227,7 @@
 
         });
 
-        //load selected subjects and initialze radial tree with it
-        let prev_selection = loadSelectedSubjects();
+        //set previous selection
         RadialTree.loadSelectedSubjects(root, prev_selection);
         RadialTree.draw(root);
 

@@ -141,6 +141,7 @@ var RadialTree = (function() {
             }
         },
         getSelection: () => selectedSubjects,
+        removeSelectedSubjectNode: (node) => deselectSubject(node),
         draw: (root) => {
             let dataTextLengths = {};
 
