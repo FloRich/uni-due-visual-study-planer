@@ -121,13 +121,12 @@
                 });
 
 
-            let checkboxes = divsEnter
+            divsEnter
                 .append('input')
                 .attr("type","checkbox");
 
             d3.select('#radial-filter').selectAll('input')
                 .property("checked", (d) => {
-                    console.log(type_filter_settings.has(d));
                     return type_filter_settings.has(d);
                 });
 
@@ -186,24 +185,6 @@
             return barData;
         }
 
-        function merge_studyprogram_semesters(program_semester1, program_semester2) {
-            //merge categories
-            program = program_semester1;
-            program.categories = program_semester1.categories.concat(program_semester2.categories);
-
-            // merge statistics
-            new_stats = program_semester2.stats;
-            for (key in program.stats) {
-                if (new_stats.hasOwnProperty(key)) {
-                    new_stats[key] += program.stats[key];
-                } else {
-                    new_stats[key] = program.stats[key];
-                }
-            }
-
-            return program;
-        }
-
         // start drawing the tree
         renderFilter();
 
@@ -214,13 +195,14 @@
         let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
             console.log("render selection");
             renderFilter();
-            if (RadialTree.selection.length > 0) {
-                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.selection));
+            console.log(RadialTree.getSelection());
+            if (RadialTree.getSelection().length > 0) {
+                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.getSelection()));
             }
-            renderSelection(RadialTree.selection());
+            renderSelection(RadialTree.getSelection());
             //update local storage
             // wird bei jedem rendern aufgerufen... auch wenn man mit der maus drüber geht
-            setSelectedSubjectsOfNodes(RadialTree.selection());
+            setSelectedSubjectsOfNodes(RadialTree.getSelection());
 
         });
 

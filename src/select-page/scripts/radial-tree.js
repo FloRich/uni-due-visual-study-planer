@@ -113,7 +113,7 @@ var RadialTree = (function() {
                 }
             }
         },
-        selection: () => selectedSubjects,
+        getSelection: () => selectedSubjects,
         draw: (root) => {
             let dataTextLengths = {};
 
