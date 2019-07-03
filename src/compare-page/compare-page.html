@@ -3,145 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <title>Compare Subjects</title>
-    <script type="text/javascript" src="compare-page.js"></script>
-     <script src="subject_ratings.js"></script>
+    <link rel="stylesheet" href="compare-page.css"/>
+    <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
     <script src="../scripts/app-local-storage.js"></script>
+    <script type="text/javascript" src="compare-page.js"></script>
+    <script src="subject_ratings.js"></script>
     <script src="d3.js"></script>
 </head>
 <body>
+    <main>
+        <div id="heatmap">
+            <svg>
+                <defs>
+                    <pattern id="no_rating" x="0" y="0"  width="50" height="50">
+                        <line x1="15" x2="35" y1="15" y2="35" class="cross-line"></line>
+                        <line x1="35" x2="15" y1="15" y2="35" class="cross-line"></line>
+                    </pattern>
+                </defs>
+            </svg>
+        </div>
+    </main>
+    <nav id="side-menu">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    Step 2: Compare
+                </h2>
+                <h4> Decide which subjects you want to take </h4>
+            </div>
+            <div class="card-body">
+                <section id="sws">
+                    <div id="amount_of_sws">
+                    </div>
+                </section>
+                <div id="sws-legend">
+                    <span>Legend:</span>
+                    <div id="sws-legend-items">
 
-    <div id="heatmap"></div>
+                    </div>
+                </div>
+                <br/>
+                <section id="removed_subjects">
+                    <h6>Removed Subjects</h6>
+                    <hr/>
+                    <ul id="subject-selection">
+
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </nav>
+
     <script>
-            // load selected courses
-            let selected_subjects = loadSelectedSubjects();
-            console.log(subjects);
-            console.log(selected_subjects);
-            // save ratings by the subjects name
-            subjects_dict = new Map();
-            for (let subject of subjects) {
-                subjects_dict.set(subject.name, subject);
+        // load selected courses
+
+        function removeSubject(index) {
+            let removed = selected_subjects.splice(index,1);
+            removedSubjects.push(...removed);
+
+            updateViz();
+        }
+
+        // save ratings by the subjects name
+        subjects_dict = new Map();
+        for (let subject of subjects) {
+            subjects_dict.set(subject.name, subject);
+        }
+        console.log(subjects_dict);
+
+        // add ratings to the subject if the exists.
+        for (let sub of selected_subjects) {
+            let rating = subjects_dict.get(sub.name);
+            if (rating != undefined) {
+                sub['rating'] = rating;
+                console.log(sub)
+            } else {
+                sub['rating'] = {};
             }
-            console.log(subjects_dict);
+        }
 
-            // add ratings to the subject if the exists.
-            for (let sub of selected_subjects) {
-                let rating = subjects_dict.get(sub.name);
-                if (rating != undefined) {
-                    sub['rating'] = rating;
-                    console.log(sub)
-                } else {
-                    sub['rating'] = {};
-                }
-            }
+        // Labels of row and columns
+        let myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
+        let width_of_field = 50;
+        let height_of_field = 50;
 
+        // set the dimensions and margins of the graph
+        var margin = {top: 75, right: 30, bottom: 30, left: 500},
+          width = width_of_field * myGroups.length,
+          height = height_of_field * selected_subjects.length;
 
+        // append the svg object to the body of the page
+        var svg = d3.select("#heatmap").select('svg')
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
 
-            // set the dimensions and margins of the graph
-            var margin = {top: 30, right: 30, bottom: 30, left: 300},
-              width = 800 - margin.left - margin.right,
-              height = 500 - margin.top - margin.bottom;
-            
-            // append the svg object to the body of the page
-            var svg = d3.select("#heatmap")
-            .append("svg")
-              .attr("width", width + margin.left + margin.right)
-              .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-              .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
-            
-            // Labels of row and columns
-            var myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort']
-            var myVars = [];
+        svg = svg.data(selected_subjects);
 
-            //subjects.slice(10);
-            console.log(selected_subjects)
-            selected_subjects.forEach(element => {
-                myVars.push(element.name)
-            });
+        // Build X scales and axis:
+        var x = d3.scaleBand()
+          .range([ 0, width ])
+          .domain(myGroups)
+          .padding(0.01);
 
-            var vega = ({
-               width: 1000,
-               height: 400,
-  
-                mark: 'rect',
-               selection: { highlight: {type: "single"}} ,
-               encoding: {
-               x: { field: 'myGroups', type: 'o' },
-               y: { field: 'myVars', type: 'n' },
-                  color: {
-                  field: 'AQHI',
-                  type: 'q',
-                  scale: { scheme: 'blueorange', domain: [1.5, 5.5] }
-                 },
-                 opacity: {
-                 condition: { selection: "highlight", value: 1},
-                 value: 0.5
-    }
-  }
-})
-            flattened_data = []
-        
-            selected_subjects.forEach(element => {
+        svg.append("g")
+          .attr("transform","rotate(0)", "translate(0," + height + ")")
+          .call(d3.axisTop(x))
+          .selectAll("text")
+          .attr("y", 0)
+          .attr("x", 5)
+          .attr("dy", -5)
+          .attr("transform", "rotate(-45)")
+          .style("text-anchor", "start");
+
+        // Build color scale
+        var myColor = d3.scaleLinear()
+          .range(["white", "#69b3a2"])
+          .domain([0,100]);
+
+        function drawHeatMap() {
+            let flattened_data = [];
+
+            for (let element of selected_subjects){
                 for (let attrib of myGroups) {
                     flattened_data.push({
                         name: element.name,
                         type: attrib,
-                        value: element.rating[""+attrib] || 0
+                        value: element.rating[""+attrib] || -1
                     })
                 }
-            });
+            };
 
+            // update margins
+            width = width_of_field * myGroups.length;
+            height = height_of_field * selected_subjects.length;
 
-            
-            console.log(flattened_data)
-            // Build X scales and axis:
-            var x = d3.scaleBand()
-              .range([ 0, width ])
-              .domain(myGroups)
-              .padding(0.01);
-            svg.append("g")
-              .attr("transform","rotate(0)", "translate(0," + height + ")")
-              .call(d3.axisTop(x))
-              .selectAll("text")
-              .attr("y", 0)
-              .attr("x", 5)
-              .attr("dy", -5)
-              .attr("transform", "rotate(-15)")
-              .style("text-anchor", "start");
-            
-        
+            // delete labels and rectangles
+            d3.selectAll('.heatmap-label')
+                .remove();
+
+            d3.selectAll('rect').remove();
 
             // Build Y scales and axis:
             var y = d3.scaleBand()
-              .range([ height, 0 ])
-              .domain(myVars)
-              .padding(0.01);
+                .range([ height, 0 ])
+                .domain(flattened_data.map(d => {
+                    console.log(d.name);
+                    return d.name
+                }))
+                .padding(0.01);
 
+
+            // append labels
             svg.append("g")
-              .call(d3.axisLeft(y));
-            
-            // Build color scale
-            var myColor = d3.scaleLinear()
-              .range(["white", "#69b3a2"])
-              .domain([1,100])
-            
-            //Read the data
-            svg.selectAll()
-                .data(flattened_data, function(d) {
+                .attr("class","heatmap-label")
+                .call(d3.axisLeft(y));
+
+            // provide interaction on labels
+            svg.selectAll(".heatmap-label text")
+                .on("click", function(d) {
+                    let index = selected_subjects.findIndex((subject) => (subject.name === d));
+                    if (index >= 0) {
+                        removeSubject(index);
+                        console.log(selected_subjects);
+                        drawHeatMap();
+                    }
+                });
+
+            // append rect angles
+            let rect = svg.selectAll()
+                .data(flattened_data, function (d) {
                 })
                 .enter()
                 .append("rect")
-                .attr("x", function(d) { 
-                    return x(d.type) })
-                .attr("y", function(d) { return y(d.name) })
-                .attr("width", x.bandwidth() )
-              .attr("height", y.bandwidth() )
-              .style("fill", function(d) { return myColor(d.value)} )
-            
-          
-                  
-          
+                .attr("x", function (d) {
+                    return x(d.type)
+                })
+                .attr("y", function (d) {
+                    return y(d.name)
+                })
+                .attr("width", x.bandwidth())
+                .attr("height", y.bandwidth())
+                .style("fill", function (d) {
+                    if (d.value == -1) {
+                        return "url(#no_rating)"
+                    }
+                    return myColor(d.value)
+                })
+        }
+
+        drawHeatMap();
+        drawSwsChart(selected_subjects);
+        renderRemovedSubjects(removedSubjects);
+
       </script>
   </body>
 </html>

@@ -13,7 +13,7 @@
 </head>
 <body>
     <main id="content">
-        <svg width="1400" height="1060"></svg>
+        <svg id="radial-tree"></svg>
     </main>
     <nav id="side-menu">
         <div class="card">
@@ -30,15 +30,11 @@
                 </div>
                 <svg id="bar-chart"></svg>
                 <div>
-                    <div>
-                        <h4>Marked subjects:</h4>
-                        <button type="button" class="btn btn-outline-warning" onclick="clearSelection()">
-                            Clear
-                        </button>
-                    </div>
-                    <div id="subject-selection">
+                    <h4>Marked subjects:</h4>
+                    <hr/>
+                    <ul id="subject-selection">
 
-                    </div>
+                    </ul>
                 </div>
                 <button type="button"
                         class="float-right btn btn-outline-info"
@@ -121,13 +117,12 @@
                 });
 
 
-            let checkboxes = divsEnter
+            divsEnter
                 .append('input')
                 .attr("type","checkbox");
 
             d3.select('#radial-filter').selectAll('input')
                 .property("checked", (d) => {
-                    console.log(type_filter_settings.has(d));
                     return type_filter_settings.has(d);
                 });
 
@@ -141,27 +136,40 @@
         }
 
         function renderSelection(data) {
-            console.log(data);
             let selections = d3.select("#subject-selection")
-                .selectAll("div")
-                .data(data);
+                .selectAll("li")
+                .data(data, d => d.data.name);
 
             //on remove
             selections.exit().remove();
 
             let enter = selections
                 .enter()
-                .append("div");
+                .append("li")
+                .append("div")
+                .attr("class","selected-item");
+            let text = enter
+                .append("div")
+                .attr("class","selected-item-text");
 
-            d3.select("#subject-selection").selectAll("div").merge(enter)
+            let revertAction = enter
+                .append("img")
+                .attr("class", "selected-item-revert")
+                .attr("src", "https://img.icons8.com/color/20/000000/undelete.png")
+                .on("click", (d) => removeSelectedSubject(d));
+
+            d3.select("#subject-selection").selectAll(".selected-item-text").merge(text)
                 .attr("class","card-text")
                 .style("color", (d) => d3.rgb(colormap[d.data.subject_type]).darker())
                 .text((d) => d.data.name);
+
         }
 
-        function clearSelection() {
-            //todo do cleaning
-
+        function removeSelectedSubject(subject) {
+            //remove
+            RadialTree.removeSelectedSubjectNode(subject);
+            //update viz
+            RadialTree.draw(root);
         }
 
         function mapSubjectSelectionToBarData(subjectSelection) {
@@ -186,46 +194,40 @@
             return barData;
         }
 
-        function merge_studyprogram_semesters(program_semester1, program_semester2) {
-            //merge categories
-            program = program_semester1;
-            program.categories = program_semester1.categories.concat(program_semester2.categories);
-
-            // merge statistics
-            new_stats = program_semester2.stats;
-            for (key in program.stats) {
-                if (new_stats.hasOwnProperty(key)) {
-                    new_stats[key] += program.stats[key];
-                } else {
-                    new_stats[key] = program.stats[key];
-                }
-            }
-
-            return program;
+        function adjustFullSizeOfRadialTreeSvg() {
+            let svg = d3.select("#radial-tree");
+            let bounds = svg.node().parentElement.getBoundingClientRect();
+            svg
+                .attr("height", bounds.height)
+                .attr("width", bounds.width);
         }
 
+        //load selected subjects and initialze radial tree with it
+        let prev_selection = loadSelectedSubjects();
+
+        adjustFullSizeOfRadialTreeSvg();
         // start drawing the tree
         renderFilter();
 
         //render barchart
         let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
-        BarChart.init("bar-chart",nav_width,200);
+        BarChart.init("bar-chart",nav_width-30,200);
 
         let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
             console.log("render selection");
             renderFilter();
-            if (RadialTree.selection.length > 0) {
-                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.selection));
+            console.log(RadialTree.getSelection());
+            if (RadialTree.getSelection().length > 0) {
+                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.getSelection()));
             }
-            renderSelection(RadialTree.selection());
+            renderSelection(RadialTree.getSelection());
             //update local storage
             // wird bei jedem rendern aufgerufen... auch wenn man mit der maus drüber geht
-            setSelectedSubjects(RadialTree.selection());
+            setSelectedSubjectsOfNodes(RadialTree.getSelection());
 
         });
 
-        //load selected subjects and initialze radial tree with it
-        let prev_selection = loadSelectedSubjects();
+        //set previous selection
         RadialTree.loadSelectedSubjects(root, prev_selection);
         RadialTree.draw(root);
 

@@ -2,20 +2,22 @@ var RadialTree = (function() {
     // private objects
     let colormap = {};
     let type_filter_settings = {};
-    let selectedSubjects = []
+    let selectedSubjects = [];
     let onUpdateFunction;
 
     let svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height"),
         radius = 500,
-        g = svg.append("g")
-            .attr("transform", "translate(" + (width / 2 + 40) + "," + (height / 2 + 90) + ")");
+        g = svg.append("g");
 
-    svg.call(d3.zoom()
+    let zoomScale = 1;
+
+    let zoom = d3.zoom()
         .on("zoom", () => {
-            g.attr('transform', d3.event.transform)
-        }));
+            g.attr("transform", d3.event.transform)
+        });
+    svg.call(zoom);
 
     let tree = d3.tree()
         .size([360, radius])
@@ -41,6 +43,27 @@ var RadialTree = (function() {
         }
 
         return children;
+    }
+
+    /**
+     * Zooms out so that the provided node is completely visible.
+     * @param nodeElement Element you want to have zoomed out
+     */
+    function zoomOutToFitParentSize(nodeElement, zoom) {
+        let elementBBox = nodeElement.node().getBBox();
+        let parentClientRect = nodeElement.node().parentElement.getClientRects()['0'];
+        let maxHeight = parentClientRect.height,
+            maxWidth = parentClientRect.width,
+            currentHeight = elementBBox.height,
+            currentWidth = elementBBox.width;
+
+        let midX = maxWidth/2;
+        let midY = maxHeight/2;
+
+        let scale = Math.min(maxWidth/currentWidth, maxHeight/currentHeight);
+        let transform = d3.zoomIdentity.translate(midX, midY).scale(scale);
+
+        svg.call(zoom.transform, transform);
     }
 
     function isSubject(d) {
@@ -102,9 +125,13 @@ var RadialTree = (function() {
             type_filter_settings = settings_for_type_filter;
             colormap = map_with_colors;
             onUpdateFunction = onUpdate;
-            return tree(d3.hierarchy(selected_studyprogram, children_func));
+            let root = tree(d3.hierarchy(selected_studyprogram, children_func));
+            RadialTree.draw(root);
+            zoomOutToFitParentSize(g, zoom);
+            return root;
         },
         loadSelectedSubjects: (root, subjects) => {
+            selectedSubjects = [];
             for (let node of root.descendants()) {
                 for (let subject of subjects) {
                     if (node.data.id === subject.id) {
@@ -113,7 +140,8 @@ var RadialTree = (function() {
                 }
             }
         },
-        selection: () => selectedSubjects,
+        getSelection: () => selectedSubjects,
+        removeSelectedSubjectNode: (node) => deselectSubject(node),
         draw: (root) => {
             let dataTextLengths = {};
 
