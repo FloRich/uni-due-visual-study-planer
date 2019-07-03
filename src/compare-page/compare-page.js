@@ -16,8 +16,8 @@ function drawSwsChart(selected_subjects) {
     // calculate sum of sws and count different sws
     for (subject of selected_subjects) {
         let sws = subject.sws.replace(/ /g,'');
-        if (sws === "") {
-            sws = 0;
+        if (sws === "" || sws === 'undefefined') {
+            sws = "0";
             subject.sws = "*";
         } else {
             max_amount_of_sws += +sws;
