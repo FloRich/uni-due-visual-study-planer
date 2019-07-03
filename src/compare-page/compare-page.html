@@ -45,6 +45,9 @@
                 <section id="removed_subjects">
                     <h6>Removed Subjects</h6>
                     <hr/>
+                    <ul id="subject-selection">
+
+                    </ul>
                 </section>
             </div>
         </div>
@@ -52,9 +55,14 @@
 
     <script>
 
+            let removedSubjects = [];
+
             function removeSubject(index) {
-                selected_subjects.splice(index,1);
+                let removed = selected_subjects.splice(index,1);
+                removedSubjects.push(...removed);
+                console.log(removedSubjects);
                 drawSwsChart(selected_subjects);
+                renderRemovedSubjects(removedSubjects);
             }
 
             // load selected courses
@@ -114,11 +122,7 @@
               .attr("dy", -5)
               .attr("transform", "rotate(-45)")
               .style("text-anchor", "start");
-            
-        
 
-
-            
             // Build color scale
             var myColor = d3.scaleLinear()
               .range(["white", "#69b3a2"])
@@ -195,7 +199,7 @@
                     })
             }
 
-            drawHeatMap(svg);
+            drawHeatMap();
                   
           
       </script>

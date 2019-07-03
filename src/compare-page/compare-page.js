@@ -84,6 +84,10 @@ function drawSwsChart(selected_subjects) {
     d3.select('#amount_of_sws')
         .html("SWS: &Sigma; "+max_amount_of_sws);
 
+    renderSWSLegend(domain, swsColorScale);
+}
+
+function renderSWSLegend(domain, swsColorScale) {
     // render legend for colorcoding
     let legend = d3.select('#sws-legend-items')
         .selectAll('.sws-legend-item')
@@ -111,6 +115,43 @@ function drawSwsChart(selected_subjects) {
     legendTitle
         .merge(legendEnter)
         .text(d => d +" sws")
+}
 
+function renderRemovedSubjects(list_of_subjects) {
+    let selections = d3.select("#subject-selection")
+        .selectAll("li")
+        .data(list_of_subjects, d => d.name);
 
+    //on remove
+    selections.exit().remove();
+
+    let enter = selections
+        .enter()
+        .append("li")
+        .append("div")
+        .attr("class","removed-item");
+    let text = enter
+        .append("div")
+        .attr("class","removed-item-text");
+
+    let revertAction = enter
+        .append("img")
+        .attr("class", "removed-item-revert")
+        .attr("src", "https://img.icons8.com/color/20/000000/undelete.png")
+        .on("click", d => revertDeletion(d));
+
+    d3.select("#subject-selection").selectAll(".removed-item-text").merge(text)
+        .attr("class","card-text")
+        .text((d) => d.name);
+}
+
+function revertDeletion(subject) {
+    let index = removedSubjects.findIndex((obj) => obj.name === subject.name);
+    if (index >= 0) {
+        removedSubjects.splice(index,1);
+        selected_subjects.push(subject);
+        drawHeatMap();
+        drawSwsChart(selected_subjects);
+        renderRemovedSubjects(removedSubjects);
+    }
 }

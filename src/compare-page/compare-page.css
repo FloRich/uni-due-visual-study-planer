@@ -108,4 +108,11 @@ rect {
     white-space: nowrap;
 }
 
+.removed-item {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
 
