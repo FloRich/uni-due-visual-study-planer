@@ -13,7 +13,7 @@
 </head>
 <body>
     <main id="content">
-        <svg width="1400" height="1060"></svg>
+        <svg id="radial-tree"></svg>
     </main>
     <nav id="side-menu">
         <div class="card">
@@ -185,12 +185,21 @@
             return barData;
         }
 
+        function adjustFullSizeOfRadialTreeSvg() {
+            let svg = d3.select("#radial-tree");
+            let bounds = svg.node().parentElement.getBoundingClientRect();
+            svg
+                .attr("height", bounds.height)
+                .attr("width", bounds.width);
+        }
+
+        adjustFullSizeOfRadialTreeSvg();
         // start drawing the tree
         renderFilter();
 
         //render barchart
         let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
-        BarChart.init("bar-chart",nav_width,200);
+        BarChart.init("bar-chart",nav_width-30,200);
 
         let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
             console.log("render selection");
