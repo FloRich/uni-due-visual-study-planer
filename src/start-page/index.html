@@ -54,11 +54,32 @@
   <section id="select page" class="bg-light">
     <div class="container">
       <div class="row">
-          <select id="programs"></select>
+          <div id="programs">
+            <div id="program-list"></div>
+            <div id="program-detail"></div>
+          </div>
       </div>
-        <button class="btn btn-outline-info" onclick="go_to_selection_page()">Next</button>
+      <a href="">
+        <button class="btn btn-outline-info" onclick="go_to_selection_page()">Next</button></a>
+      
     </div>
   </section>
+  <section id="select page" class="bg-light">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+              <div class="col text-center">
+              <a href="file:///D:/Uni%20DUE/chatti/LAVA/Project/uni-due-visual-study-planer-develop/src/select-page/select-page.html">
+              <button type="button" class="btn btn-primary btn-lg">Select</button></a>
+              <a href="file:///D:/Uni%20DUE/chatti/LAVA/Project/uni-due-visual-study-planer-develop/src/compare-page/compare-page.html">
+              <button type="button" class="btn btn-secondary btn-lg">Compare</button></a>
+  
+          </div>
+          </div>
+        </div>
+  
+      </div>
+    </section>
 
   <section id="about">
     <div class="container">
@@ -120,12 +141,11 @@
       }
 
       // initialize options for select-Tag.
-      d3.select("#programs")
-          .selectAll('option')
+      d3.select("#program-list")
+          .selectAll('div')
           .data(studyprograms)
           .enter()
-          .append("option")
-          .attr("value", d => d.name)
+          .append("div")
           .text(d => d.name)
 
   </script>
