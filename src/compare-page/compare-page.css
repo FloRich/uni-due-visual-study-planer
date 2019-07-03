@@ -76,3 +76,36 @@ rect {
 .heatmap-label {
     cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQ/SURBVEhLpVZrTJtVGC5qjNEsRmPiov+M/lf/aeIP/+gPjMlGMF62aNbSlZQymJcOCCMD2RyrgOIGG844FxNdvCY6jei2LOAWYK7ZuJW2tEWnFS9rab9+t/Z9fd/T85U2LSSdT/LkfOe9PO853/nO+Y7Nwk9JePxsEq6dX4Wr4wrcx7YlDbxENaIjRosYM9ae2bdEDOkQCKrwoBBbD+eScGw8hXgxjTipgJttUQ1WgikdP/r8K3yrfwD3+94u8ODAIJ784mtcJL9VLKxBhxBbDxNJqL2YAnVKgZVfNHiIbWEd3v3wsy+x95APv70whd9P+Qv8hvq9fYfwBA2AZxLRMEGFHhZiG2H8L9g0g3gr2rAGaw/cxdzb8sbsSG//m6E/leng3ypaDBFP/zhudHs7o7+NzT6CXac2c56U2hjm1n1P61v2rRhbu7Facp5Z1/OUlCoHItZE1KxLf3GPYtbtxhulUbc7jjZb5RlFDHgsFv8Xs/X2/83lX+Pnl3Q4HdHheSmfR0zFB8JpQzMa7Jh7ru6GqVN+KG3KjwGyMbkdCpgnQ+Ty1JO6xxdW2oZz6fZhTEmuWmyTLPJxnMLPXaO4+M8qLmq8b2j/UJFlBe6X8qXQncMJwzmC1VJtet+cy8DYggZjtDm/oy2wTUrmF5020jPk9FKQV3Uf1Q3nEUo8gtlTE5ibDKLhGRX9AqnP9uyn4wWb7jyckJLloGnt5ekFaJpzKqLafIyS3hPMnblCY0CE4O8kfDRvp5b7DPZbsbpzaP0iNIufg1SAi8xyEc8wGg3v5NlIhfxhIQjBa2i8OipaBtvZb8VqrqFMBPE2ctUEdHiBXtnLZxFvEUVoJp0lM/EMUZJvjY0DJBgSwqhSIIH7bC+O47wZFfpmMvASa7EmfWGtoggjpEGttSaaq08zGw5gCXcNIqYzogC3ZstgqZ+oefqRChymQjutIjwBWaIUhqM7YTb0UKJk00F6Rcv5Akk6qgncZ3txnNa4X5tJwN18/vGAaeBd9GJvl7KlMO2diayjEwXdPSQYzQv75zHbRH1qRZ/s7LdiOU9KVAYd069Q5QsBFad1d2cu6/BSohdhYjov6J/FrKtd2LjlvrCT34o1drZnKN9JOlvIdZOUzoMMN9MPSuOjgL8y09OGOUerIBz/GOGHc5hzvVawCVKf7ey3bJzHuz2cX4vXpfwa6CuYFH83oulhQXfV5Dyx2MSoDgNSeg1/ANxBs6mlgHqjeddSzuGgxOqodnQk6fQdI52RBcR7pHRlgH1bM9i3Y9Xcsd0jJcoxD7BpToPjCyr4eH3C8dS9yRMf+I0WRw7s9SSwMY1WJ17/5GQoppjPSsly+FXYcZV2Ou/2QAae4FsHrw/fQpYTCsaupzBagWyPkX/tagQhKVmOS3RfuqxA9EoGLtEpdWdQh0eJcfHjkbTuWcxK9y4amEE53VKyCDbbf2/8Ay66avLRAAAAAElFTkSuQmCC"), auto;
 }
+
+#sws-legend {
+    display: flex;
+    flex-flow: row wrap;
+}
+#sws-legend > span {
+    font-size: 0.75em;
+}
+
+#sws-legend-items {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.sws-legend-item {
+    display: flex;
+    flex-flow: row;
+}
+
+.sws-legend-color {
+    width: 25px;
+    min-width: 25px;
+    height: 25px;
+    min-height: 25px;
+    border: 1px solid black;
+}
+
+.sws-legend-title {
+    white-space: nowrap;
+}
+
+
