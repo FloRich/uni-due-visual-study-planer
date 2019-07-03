@@ -86,7 +86,7 @@ function drawSwsChart(selected_subjects) {
     // render legend for colorcoding
     let legend = d3.select('#sws-legend-items')
         .selectAll('.sws-legend-item')
-        .data(domain);
+        .data(domain, d => d);
 
     legend.exit().remove();
 
@@ -104,11 +104,11 @@ function drawSwsChart(selected_subjects) {
         .attr("class", "sws-legend-title");
 
     legendColor
-        .merge(legend)
+        .merge(legendEnter)
         .style("background-color", d => d3.color(d3.interpolateSinebow(swsColorScale(d))).darker());
 
     legendTitle
-        .merge(legend)
+        .merge(legendEnter)
         .text(d => d +" sws")
 
 
