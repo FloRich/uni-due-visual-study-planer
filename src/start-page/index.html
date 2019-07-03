@@ -11,7 +11,8 @@
   <title>Course Catalog</title>
 
   <!-- Bootstrap core CSS -->
-  <link href="../scripts/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <link href="../scripts/bootstrap/bootstrap.min.css" rel="stylesheet"/>
+  <link href="start-page.css" rel="stylesheet" />
 
   <!-- Custom styles for this template -->
   <link href="css/scrolling-nav.css" rel="stylesheet">
@@ -147,6 +148,32 @@
           .enter()
           .append("div")
           .text(d => d.name)
+          .on("click", function(d) {
+            shwoDetailOfProgram(d);
+          });
+
+      function shwoDetailOfProgram(program) {
+        console.log(Object.keys(program.stats))
+        
+        d3.select('#program-detail').selectAll("div").remove()
+        d3.select('#program-detail').select("#next-page-button").remove()
+        d3.select('#program-detail')
+        .selectAll("div")
+        .data(Object.keys(program.stats))
+        .enter()
+        .append("div")
+        .text(d=>d +": " +program.stats[d]);
+
+
+        d3.select('#program-detail')
+        .append("button")
+        .attr("id","next-page-button")
+        .on("click", function(d) {
+          setSelectedStudyprogram(program);
+          window.location.href='../select-page/select-page.html'
+        })
+        .text("Next")
+      }
 
   </script>
 </body>
