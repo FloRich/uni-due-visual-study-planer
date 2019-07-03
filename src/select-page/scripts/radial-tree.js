@@ -105,6 +105,7 @@ var RadialTree = (function() {
             return tree(d3.hierarchy(selected_studyprogram, children_func));
         },
         loadSelectedSubjects: (root, subjects) => {
+            selectedSubjects = [];
             for (let node of root.descendants()) {
                 for (let subject of subjects) {
                     if (node.data.id === subject.id) {
