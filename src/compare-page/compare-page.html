@@ -53,7 +53,7 @@
     <script>
 
             function removeSubject(index) {
-                console.log(selected_subjects.splice(index,1));
+                selected_subjects.splice(index,1);
                 drawSwsChart(selected_subjects);
             }
 
@@ -81,7 +81,6 @@
 
             // Labels of row and columns
             let myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
-            let myVars = [];
             let width_of_field = 50;
             let height_of_field = 50;
 
@@ -97,11 +96,8 @@
             .append("g")
               .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
-            svg = svg.data(selected_subjects);
-            selected_subjects.forEach(element => {
-                myVars.push(element.name)
-            });
 
+            svg = svg.data(selected_subjects);
 
             // Build X scales and axis:
             var x = d3.scaleBand()
@@ -131,7 +127,7 @@
             function drawHeatMap() {
                 let flattened_data = [];
 
-                selected_subjects.forEach(element => {
+                for (let element of selected_subjects){
                     for (let attrib of myGroups) {
                         flattened_data.push({
                             name: element.name,
@@ -139,7 +135,7 @@
                             value: element.rating[""+attrib] || -1
                         })
                     }
-                });
+                };
 
                 // update margins
                 width = width_of_field * myGroups.length;
@@ -154,7 +150,10 @@
                 // Build Y scales and axis:
                 var y = d3.scaleBand()
                     .range([ height, 0 ])
-                    .domain(flattened_data.map(d => d.name))
+                    .domain(flattened_data.map(d => {
+                        console.log(d.name);
+                        return d.name
+                    }))
                     .padding(0.01);
 
 

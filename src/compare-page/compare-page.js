@@ -4,6 +4,7 @@
  * @param selected_subjects array of subjects
  */
 function drawSwsChart(selected_subjects) {
+    let data = Object.create(selected_subjects).reverse();
     let max_amount_of_sws = 0;
     let number_of_different_sws = new Map();
     let height_per_sws = 12;
@@ -40,7 +41,7 @@ function drawSwsChart(selected_subjects) {
     //This is for rendering the sws chart
     let sws = d3.select('#sws')
         .selectAll('.sws-subject')
-        .data(selected_subjects.reverse(), d => d.name);
+        .data(data, d => d.name);
 
     // remove old representation if data had changed
     sws.exit().remove();
