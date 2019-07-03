@@ -5,9 +5,9 @@
     <title>Compare Subjects</title>
     <link rel="stylesheet" href="compare-page.css"/>
     <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
-    <script type="text/javascript" src="compare-page.js"></script>
-     <script src="subject_ratings.js"></script>
     <script src="../scripts/app-local-storage.js"></script>
+    <script type="text/javascript" src="compare-page.js"></script>
+    <script src="subject_ratings.js"></script>
     <script src="d3.js"></script>
 </head>
 <body>
@@ -19,6 +19,7 @@
                         <line x1="15" x2="35" y1="15" y2="35" class="cross-line"></line>
                         <line x1="35" x2="15" y1="15" y2="35" class="cross-line"></line>
                     </pattern>
+                </defs>
             </svg>
         </div>
     </main>
@@ -55,25 +56,14 @@
 
     <script>
         // load selected courses
-        var selected_subjects = loadSelectedSubjects();
-        let removedSubjects = loadRemovedSubjects();
 
         function removeSubject(index) {
             let removed = selected_subjects.splice(index,1);
             removedSubjects.push(...removed);
 
-            //save changes
-            setSelectedSubjects(selected_subjects);
-            setRemovedSubjects(removedSubjects);
-
-            //redraw charts
-            drawSwsChart(selected_subjects);
-            renderRemovedSubjects(removedSubjects);
+            updateViz();
         }
 
-
-        console.log(subjects);
-        console.log(selected_subjects);
         // save ratings by the subjects name
         subjects_dict = new Map();
         for (let subject of subjects) {

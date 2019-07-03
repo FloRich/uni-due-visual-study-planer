@@ -1,3 +1,7 @@
+var selected_subjects = loadSelectedSubjects();
+var removedSubjects = loadRemovedSubjects();
+
+
 /**
  * Draws a stacked-bar Chart with one bar for sws of all given subjects.
  *
@@ -87,6 +91,11 @@ function drawSwsChart(selected_subjects) {
     renderSWSLegend(domain, swsColorScale);
 }
 
+/**
+ * Displays a legend for the sws chart.
+ * @param domain the different type of sws points
+ * @param swsColorScale colorscale from sws chart
+ */
 function renderSWSLegend(domain, swsColorScale) {
     // render legend for colorcoding
     let legend = d3.select('#sws-legend-items')
@@ -117,6 +126,10 @@ function renderSWSLegend(domain, swsColorScale) {
         .text(d => d +" sws")
 }
 
+/**
+ * Displays all subjects that where removed from the heatmap.
+ * @param list_of_subjects
+ */
 function renderRemovedSubjects(list_of_subjects) {
     let selections = d3.select("#subject-selection")
         .selectAll("li")
@@ -145,13 +158,30 @@ function renderRemovedSubjects(list_of_subjects) {
         .text((d) => d.name);
 }
 
+/**
+ * Adds an already removed subject to the list of selected ones and updates the visualization.
+ * @param subject the removed subject.
+ */
 function revertDeletion(subject) {
     let index = removedSubjects.findIndex((obj) => obj.name === subject.name);
     if (index >= 0) {
         removedSubjects.splice(index,1);
         selected_subjects.push(subject);
-        drawHeatMap();
-        drawSwsChart(selected_subjects);
-        renderRemovedSubjects(removedSubjects);
+        updateViz();
     }
+}
+
+/**
+ * Redraws the heatmap, swsChart and list of removed subjects.
+ * Saves changes mede to selected_subjects and removedSubjects.
+ */
+function updateViz() {
+    //save changes
+    setSelectedSubjects(selected_subjects);
+    setRemovedSubjects(removedSubjects);
+
+    //redraw charts
+    drawHeatMap();
+    drawSwsChart(selected_subjects);
+    renderRemovedSubjects(removedSubjects);
 }
