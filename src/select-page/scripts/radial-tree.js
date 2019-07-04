@@ -4,11 +4,11 @@ var RadialTree = (function() {
     let type_filter_settings = {};
     let selectedSubjects = [];
     let onUpdateFunction;
-
+    let maxTextLength = 15;
     let svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height"),
-        radius = 500,
+        radius = 800,
         g = svg.append("g");
 
     let zoomScale = 1;
@@ -72,8 +72,19 @@ var RadialTree = (function() {
 
     function isSubjectFiltered(d) {
         if (isSubject(d)) {
-            if (type_filter_settings.has(d.data.subject_type) && type_filter_settings.has(d.data.semester)){
-                return true
+            let semesters = [];
+            if (d.data.hasOwnProperty("semester")){
+                semesters = [d.data.semester]
+            } else {
+                semesters = d.data['semesters'];
+            }
+            if (type_filter_settings.has(d.data.subject_type)) {
+                for (let sem of semesters) {
+                    if (type_filter_settings.has(sem)) {
+                        return true;
+                    }
+                }
+                return false;
             } else {
                 return false;
             }
@@ -105,6 +116,24 @@ var RadialTree = (function() {
     // e.g "i am a chunk" => ["i am  a", "chunk"]
     function splitTextIntoLinesWithThreeWords(text) {
         return text.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,2}\b/g)
+    }
+
+    function splitLongTextIntoMultipleLines(text) {
+        let words = text.split(" ");
+        let lines = [];
+        let line = words[0];
+
+        for (let i = 1; i< words.length; i++) {
+            if (line.length + words[i].length <= maxTextLength) {
+                line += " "+words[i];
+            } else {
+                lines.push(line);
+                line = words[i];
+            }
+        }
+        // Add last line
+        lines.push(line);
+        return lines;
     }
 
     function selectSubject(d) {
@@ -176,7 +205,7 @@ var RadialTree = (function() {
                 .attr("y", (d) => {
                     // divide between node and leaf. Since the name of nodes will be split into chunks,
                     // the y alignment has to be adjusted, so that the whole text-block is centered to the node
-                    let lines = splitTextIntoLinesWithThreeWords(d.data.name);
+                    let lines = splitLongTextIntoMultipleLines(d.data.name);
                     let height = lines.length * 90;
                     let y = "-"+height/200 +"em";
                     return d.children? y: ".31em"})
@@ -189,7 +218,7 @@ var RadialTree = (function() {
             // because sometimes the name is too long and has to be divided into smaller chunks
             textCategory.selectAll("tspan.text")
                 .data(d => {
-                    let titles = d.children? splitTextIntoLinesWithThreeWords(d.data.name): [d.data.name];
+                    let titles = d.children? splitLongTextIntoMultipleLines(d.data.name): [d.data.name];
                     let data = [];
                     for (let title of titles) {
                         data.push({title: title, id: d.data.id, subject: isSubject(d)? true: false})
