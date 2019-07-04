@@ -10,9 +10,7 @@ var RadialTree = (function() {
         height = +svg.attr("height"),
         radius = 800,
         g = svg.append("g");
-
-    let zoomScale = 1;
-
+    let higlightType = "";
     let zoom = d3.zoom()
         .on("zoom", () => {
             g.attr("transform", d3.event.transform)
@@ -148,6 +146,20 @@ var RadialTree = (function() {
         d.isSelected = false;
     }
 
+    function shouldBeLowlighted(d) {
+        if (!d.data.hasOwnProperty("subject_type")){
+            return false;
+        }
+
+        if (higlightType === "") {
+            return false;
+        } else if (higlightType === d.data.subject_type) {
+            return (selectedSubjects.indexOf(d) < 0);
+        } else {
+            return true;
+        }
+    }
+
     // public objects
     return {
         init: (studyprogram, map_with_colors, settings_for_type_filter, onUpdate) => {
@@ -171,6 +183,8 @@ var RadialTree = (function() {
         },
         getSelection: () => selectedSubjects,
         removeSelectedSubjectNode: (node) => deselectSubject(node),
+        setHighlightedType: (type) => { higlightType = type;},
+        resetHighlightType: () => { higlightType = "";},
         draw: (root) => {
             let dataTextLengths = {};
 
@@ -278,34 +292,17 @@ var RadialTree = (function() {
                 .attr("y", (d) => ".31em")
                 .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
                 .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
-                .attr("fill", (d) => d3.rgb(colormap[d.data.subject_type]).darker())
+                .attr("fill", (d) => {
+                    if (shouldBeLowlighted(d)) {
+                        return d3.rgb(200,200,200);
+                    }
+                    return d3.rgb(colormap[d.data.subject_type]).darker()
+                })
                 .text((d) => d.data.name)
                 .each(function(d) {
                     dataTextLengths[d.data.id] = this.getComputedTextLength();
                 })
                 .exit().remove();
-
-            // update background of subject's node
-            /*subjectTextBackgroundEnter
-                .merge(subjectTextBackgroundEnter)
-                .attr("x", (d,i) => {
-                    return d.x < 180 ===  isSubject(d) ? 5 : - dataTextLengths[d.data.id] -5;
-                })
-                .attr("y", (d) => {
-                    return -7;
-                })
-                .attr("width", (d) => dataTextLengths[d.data.id]+"px")
-                .attr("height", "15px")
-                .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
-                .attr("fill", (d) => {
-                    if (d.data.hasOwnProperty('subject_type')) {
-                        let value = colormap[d.data.subject_type];
-                        value = (value === undefined)? "white":value;
-                        return value;
-                    } else {
-                        return "white"
-                    }
-                });*/
 
             //updating links when filtered
             g.selectAll(".link")

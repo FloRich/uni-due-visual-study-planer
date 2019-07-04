@@ -204,6 +204,7 @@
 
         //render barchart
         let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
+
         BarChart.init("bar-chart",nav_width-30,200);
 
         let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
@@ -218,6 +219,16 @@
             // wird bei jedem rendern aufgerufen... auch wenn man mit der maus drüber geht
             setSelectedSubjectsOfNodes(RadialTree.getSelection());
 
+        });
+
+        //set Interactivity for bar chart with radial-tree
+        BarChart.setHoverFn((d) => {
+            RadialTree.setHighlightedType(d.categories);
+            RadialTree.draw(root);
+        });
+        BarChart.setMouseOutFn((d) => {
+            RadialTree.resetHighlightType();
+            RadialTree.draw(root);
         });
 
         //set previous selection
