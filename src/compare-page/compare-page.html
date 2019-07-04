@@ -86,6 +86,7 @@
         let myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
         let width_of_field = 50;
         let height_of_field = 50;
+        let width_of_legend = 180;
 
         // set the dimensions and margins of the graph
         var margin = {top: 75, right: 30, bottom: 30, left: 500},
@@ -94,11 +95,29 @@
 
         // append the svg object to the body of the page
         var svg = d3.select("#heatmap").select('svg')
-          .attr("width", width + margin.left + margin.right)
+          .attr("width", width + margin.left + margin.right + width_of_legend)
           .attr("height", height + margin.top + margin.bottom)
         .append("g")
           .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
+
+        // Build color scale
+        var myColor = d3.scaleLinear()
+            .range(["white", "#69b3a2"])
+            .domain([0,100]);
+
+        var linearGradient = svg.append("defs")
+            .append("linearGradient")
+            .attr("id", "linear-gradient")
+            .attr("gradientTransform", "rotate(90)");
+
+        linearGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", myColor(100));
+
+        linearGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", myColor(0));
 
         svg = svg.data(selected_subjects);
 
@@ -107,6 +126,7 @@
           .range([ 0, width ])
           .domain(myGroups)
           .padding(0.01);
+
 
         svg.append("g")
           .attr("transform","rotate(0)", "translate(0," + height + ")")
@@ -118,10 +138,53 @@
           .attr("transform", "rotate(-45)")
           .style("text-anchor", "start");
 
-        // Build color scale
-        var myColor = d3.scaleLinear()
-          .range(["white", "#69b3a2"])
-          .domain([0,100]);
+        // Contruct legend
+        let legend = svg.append("g")
+            .attr("class","legend-content")
+            .attr("transform","translate("+(width+20)+","+ (height*0.1-15)+")");
+
+        //Create triangle
+        var symbolGenerator = d3.symbol()
+            .type(d3.symbolTriangle)
+            .size(64);
+
+        let triangle = legend.append("g")
+            .attr("transform","rotate(90) translate(2.5,0)")
+            .attr("class", "triangle-pointer")
+            .append("path")
+            .attr("d", symbolGenerator());
+
+        // Create scale"
+        let legendScale = legend.append("g");
+        legendScale.append("text")
+            .style("font-size","15px")
+            .text("100 %");
+        legendScale.append("rect")
+            .attr("x", 10)
+            .attr("y",2.5)
+            .attr("width", 20)
+            .attr("height", height*0.8)
+            .attr("fill", "url(#linear-gradient)");
+        legendScale.append("text")
+            .attr("x",5)
+            .style("font-size","15px")
+            .attr("y", height*0.8 + 20)
+            .text("0 %");
+
+        // Add explaination for X
+        let legendNoRating = legend.append("g")
+            .attr("transform","translate(0,+"+(height*0.8+20+15)+")");
+        legendNoRating.append("rect")
+            .attr("y",-25)
+            .attr("transform","scale(0.5)")
+            .attr("width", width_of_field)
+            .attr("height",height_of_field)
+            .attr("fill", "url(#no_rating)");
+        legendNoRating.append("text")
+            .style("font-size","15px")
+            .attr("x", width_of_field * 0.5)
+            .attr("y", 4)
+            .text("No Rating");
 
         function drawHeatMap() {
             let flattened_data = [];
@@ -144,16 +207,15 @@
             d3.selectAll('.heatmap-label')
                 .remove();
 
-            d3.selectAll('rect').remove();
+            d3.selectAll('.cell').remove();
 
             // Build Y scales and axis:
             var y = d3.scaleBand()
                 .range([ height, 0 ])
                 .domain(flattened_data.map(d => {
-                    console.log(d.name);
                     return d.name
                 }))
-                .padding(0.01);
+                .padding(0.0);
 
 
             // append labels
@@ -178,6 +240,7 @@
                 })
                 .enter()
                 .append("rect")
+                .attr("class", "cell")
                 .attr("x", function (d) {
                     return x(d.type)
                 })
@@ -191,7 +254,7 @@
                         return "url(#no_rating)"
                     }
                     return myColor(d.value)
-                })
+                });
         }
 
         drawHeatMap();

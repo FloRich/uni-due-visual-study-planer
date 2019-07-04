@@ -56,7 +56,7 @@ main {
     grid-column: 1/2;
 }
 
-rect {
+.cell {
     stroke: whitesmoke;
 }
 
