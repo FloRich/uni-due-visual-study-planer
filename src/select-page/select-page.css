@@ -84,3 +84,7 @@ rect:hover {
     align-items: center;
     justify-content: space-between;
 }
+
+#marked-subjects {
+    margin-top: 15px;
+}
