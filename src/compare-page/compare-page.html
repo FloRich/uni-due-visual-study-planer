@@ -103,7 +103,7 @@
 
         // Build color scale
         var myColor = d3.scaleLinear()
-            .range(["white", "#69b3a2"])
+            .range(["#fffc85", "#4bb354"])
             .domain([0,100]);
 
         var linearGradient = svg.append("defs")
@@ -148,11 +148,21 @@
             .type(d3.symbolTriangle)
             .size(64);
 
-        let triangle = legend.append("g")
+        var triangle = legend.append("g")
             .attr("transform","rotate(90) translate(2.5,0)")
-            .attr("class", "triangle-pointer")
+            .attr("class", "triangle-pointer");
+        triangle
             .append("path")
             .attr("d", symbolGenerator());
+
+        triangle
+            .append("text")
+            .attr("transform","rotate(-90)")
+            .attr("x",35)
+            .attr("id","triangle-text")
+            .style("font-size","10px")
+            .attr("y",5)
+            .text("");
 
         // Create scale"
         let legendScale = legend.append("g");
@@ -173,6 +183,7 @@
 
         // Add explaination for X
         let legendNoRating = legend.append("g")
+            .attr("class","x-explaination")
             .attr("transform","translate(0,+"+(height*0.8+20+15)+")");
         legendNoRating.append("rect")
             .attr("y",-25)
@@ -185,6 +196,29 @@
             .attr("x", width_of_field * 0.5)
             .attr("y", 4)
             .text("No Rating");
+
+        /**
+         * Moves the triangle from the legend to the specified element and position
+         * @param type the element to move on. One of "values", "x-explaination"
+         * @param value
+         */
+        function moveTriangeToValue(type, value) {
+            let x = 0;
+            let y = 2.5;
+            if (type === "values") {
+                y = y +(1-value) * (height*0.8);
+
+                d3.select("#triangle-text").text(Math.round(value*10000)/100+" %")
+            } else if (type === "x-explanation") {
+                y = (height*0.8+20+15);
+                d3.select("#triangle-text").text("");
+            }
+
+            triangle
+                .transition()
+                .delay(300)
+                .attr("transform", "rotate(90) translate("+y+","+x+")")
+        }
 
         function drawHeatMap() {
             let flattened_data = [];
@@ -235,7 +269,7 @@
                 });
 
             // append rect angles
-            let rect = svg.selectAll()
+            let rect = svg.selectAll("cell")
                 .data(flattened_data, function (d) {
                 })
                 .enter()
@@ -250,11 +284,18 @@
                 .attr("width", x.bandwidth())
                 .attr("height", y.bandwidth())
                 .style("fill", function (d) {
-                    if (d.value == -1) {
+                    if (d.value === -1) {
                         return "url(#no_rating)"
                     }
                     return myColor(d.value)
-                });
+                })
+                .on("mouseover", function(d) {
+                    if (d.value === -1) {
+                        moveTriangeToValue("x-explanation",0);
+                    }else {
+                        moveTriangeToValue("values",d.value/100);
+                    }
+            })
         }
 
         drawHeatMap();
