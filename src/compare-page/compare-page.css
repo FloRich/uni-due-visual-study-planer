@@ -65,7 +65,7 @@ main {
 }
 .cross-line {
     stroke: palevioletred;
-    stroke-width: 5;
+    stroke-width: 3px;
     stroke-linecap: round;
 }
 
@@ -76,7 +76,10 @@ main {
 #sws-legend {
     display: flex;
     flex-flow: row wrap;
+    margin-top: 20px;
+    align-items: center;
 }
+
 #sws-legend > span {
     font-size: 0.75em;
 }
@@ -90,6 +93,7 @@ main {
 .sws-legend-item {
     display: flex;
     flex-flow: row;
+    margin: 7px;
 }
 
 .sws-legend-color {
@@ -98,6 +102,7 @@ main {
     height: 25px;
     min-height: 25px;
     border: 1px solid black;
+    margin-right: 5px;
 }
 
 .sws-legend-title {

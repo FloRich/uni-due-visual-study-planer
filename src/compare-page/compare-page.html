@@ -16,8 +16,8 @@
             <svg>
                 <defs>
                     <pattern id="no_rating" x="0" y="0"  width="50" height="50">
-                        <line x1="15" x2="35" y1="15" y2="35" class="cross-line"></line>
-                        <line x1="35" x2="15" y1="15" y2="35" class="cross-line"></line>
+                        <line x1="7" x2="18" y1="7" y2="18" class="cross-line"></line>
+                        <line x1="18" x2="7" y1="7" y2="18" class="cross-line"></line>
                     </pattern>
                 </defs>
             </svg>
@@ -57,6 +57,9 @@
     <script>
         // load selected courses
 
+        /**
+         *  Removes subject with specified index and visualisation
+         */
         function removeSubject(index) {
             let removed = selected_subjects.splice(index,1);
             removedSubjects.push(...removed);
@@ -69,7 +72,6 @@
         for (let subject of subjects) {
             subjects_dict.set(subject.name, subject);
         }
-        console.log(subjects_dict);
 
         // add ratings to the subject if the exists.
         for (let sub of selected_subjects) {
@@ -84,8 +86,8 @@
 
         // Labels of row and columns
         let myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
-        let width_of_field = 50;
-        let height_of_field = 50;
+        let width_of_field = 25;
+        let height_of_field = 25;
         let width_of_legend = 180;
 
         // set the dimensions and margins of the graph
