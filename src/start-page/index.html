@@ -169,6 +169,7 @@
         .append("button")
         .attr("id","next-page-button")
         .on("click", function(d) {
+            clearAll();
           setSelectedStudyprogram(program);
           window.location.href='../select-page/select-page.html'
         })

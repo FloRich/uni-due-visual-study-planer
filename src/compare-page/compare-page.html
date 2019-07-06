@@ -7,21 +7,25 @@
     <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
     <script src="../scripts/app-local-storage.js"></script>
     <script type="text/javascript" src="compare-page.js"></script>
-    <script src="subject_ratings.js"></script>
-    <script src="d3.js"></script>
+    <script src="../data/subject_ratings.js"></script>
+    <script src="../scripts/d3.js"></script>
 </head>
 <body>
     <main>
-        <div id="heatmap">
-            <svg>
-                <defs>
-                    <pattern id="no_rating" x="0" y="0"  width="50" height="50">
-                        <line x1="7" x2="18" y1="7" y2="18" class="cross-line"></line>
-                        <line x1="18" x2="7" y1="7" y2="18" class="cross-line"></line>
-                    </pattern>
-                </defs>
-            </svg>
-        </div>
+        <svg id="heatmaps">
+            <defs>
+                <pattern id="no_rating" x="0" y="0"  width="50" height="50">
+                    <line x1="7" x2="18" y1="7" y2="18" class="cross-line"></line>
+                    <line x1="18" x2="7" y1="7" y2="18" class="cross-line"></line>
+                </pattern>
+            </defs>
+            <g id="move-group">
+                <g id="rating-map">
+                </g>
+                <g id="timeoverlap-matrix">
+                </g>
+            </g>
+        </svg>
     </main>
     <nav id="side-menu">
         <div class="card">
@@ -47,7 +51,6 @@
                     <h6>Removed Subjects</h6>
                     <hr/>
                     <ul id="subject-selection">
-
                     </ul>
                 </section>
             </div>
@@ -55,30 +58,20 @@
     </nav>
 
     <script>
-        // load selected courses
 
-        /**
-         *  Removes subject with specified index and visualisation
-         */
-        function removeSubject(index) {
-            let removed = selected_subjects.splice(index,1);
-            removedSubjects.push(...removed);
-
-            updateViz();
-        }
+        setSvgHightToParentsWidth();
 
         // save ratings by the subjects name
-        subjects_dict = new Map();
+        let subjects_dict = new Map();
         for (let subject of subjects) {
             subjects_dict.set(subject.name, subject);
         }
 
-        // add ratings to the subject if the exists.
+        // add ratings to the subject if it exists.
         for (let sub of selected_subjects) {
             let rating = subjects_dict.get(sub.name);
-            if (rating != undefined) {
+            if (rating !== undefined) {
                 sub['rating'] = rating;
-                console.log(sub)
             } else {
                 sub['rating'] = {};
             }
@@ -88,38 +81,36 @@
         let myGroups = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
         let width_of_field = 25;
         let height_of_field = 25;
-        let width_of_legend = 180;
+        let width_of_legend = 100;
 
-        // set the dimensions and margins of the graph
-        var margin = {top: 75, right: 30, bottom: 30, left: 500},
+        // set the dimensions and margins of the rating-map
+        var margin = {top: 300, right: 30, bottom: 30, left: 500},
           width = width_of_field * myGroups.length,
           height = height_of_field * selected_subjects.length;
 
         // append the svg object to the body of the page
-        var svg = d3.select("#heatmap").select('svg')
-          .attr("width", width + margin.left + margin.right + width_of_legend)
+        var svg = d3.select("#rating-map")
+          .attr("width", width + margin.left + width_of_legend)
           .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+            .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // Build color scale
-        var myColor = d3.scaleLinear()
+        var ratingColorScale = d3.scaleLinear()
             .range(["#fffc85", "#4bb354"])
             .domain([0,100]);
 
         var linearGradient = svg.append("defs")
             .append("linearGradient")
-            .attr("id", "linear-gradient")
-            .attr("gradientTransform", "rotate(90)");
+            .attr("id", "linear-gradient");
 
         linearGradient.append("stop")
             .attr("offset", "0%")
-            .attr("stop-color", myColor(100));
+            .attr("stop-color", ratingColorScale(0));
 
         linearGradient.append("stop")
             .attr("offset", "100%")
-            .attr("stop-color", myColor(0));
+            .attr("stop-color", ratingColorScale(100));
 
         svg = svg.data(selected_subjects);
 
@@ -140,10 +131,43 @@
           .attr("transform", "rotate(-45)")
           .style("text-anchor", "start");
 
-        // Contruct legend
+        // Construct legend
         let legend = svg.append("g")
             .attr("class","legend-content")
-            .attr("transform","translate("+(width+20)+","+ (height*0.1-15)+")");
+            .attr("transform","translate("+0+","+ (height+30)+")");
+
+        // Create scale"
+        let legendScale = legend.append("g");
+        legendScale.append("text")
+            .attr("transform","translate(-30,12.5)")
+            .style("font-size","15px")
+            .text("0 %");
+        legendScale.append("rect")
+            .attr("x", 0)
+            .attr("y",0)
+            .attr("width", width)
+            .attr("height", 15)
+            .attr("fill", "url(#linear-gradient)");
+        legendScale.append("text")
+            .attr("transform", "translate("+(width+5)+",12.5)")
+            .style("font-size","15px")
+            .text("100 %");
+
+        // Add explaination for X
+        let legendNoRating = legend.append("g")
+            .attr("class","x-explaination")
+            .attr("transform","translate(0,+"+40+")");
+        legendNoRating.append("rect")
+            .attr("y",-(width_of_field*0.7))
+            .attr("transform","scale(0.7)")
+            .attr("width", width_of_field)
+            .attr("height",height_of_field)
+            .attr("fill", "url(#no_rating)");
+        legendNoRating.append("text")
+            .style("font-size","15px")
+            .attr("x", width_of_field * 0.7)
+            .attr("y", 1)
+            .text("No Rating");
 
         //Create triangle
         var symbolGenerator = d3.symbol()
@@ -151,53 +175,22 @@
             .size(64);
 
         var triangle = legend.append("g")
-            .attr("transform","rotate(90) translate(2.5,0)")
+            .attr("transform","rotate(180), translate("+(-width/2)+",5)")
             .attr("class", "triangle-pointer");
+
         triangle
             .append("path")
             .attr("d", symbolGenerator());
 
         triangle
             .append("text")
-            .attr("transform","rotate(-90)")
-            .attr("x",35)
+            .attr("transform","rotate(180)")
+            .attr("x",0)
+            .style("text-anchor","middle")
             .attr("id","triangle-text")
             .style("font-size","10px")
-            .attr("y",5)
+            .attr("y",30)
             .text("");
-
-        // Create scale"
-        let legendScale = legend.append("g");
-        legendScale.append("text")
-            .style("font-size","15px")
-            .text("100 %");
-        legendScale.append("rect")
-            .attr("x", 10)
-            .attr("y",2.5)
-            .attr("width", 20)
-            .attr("height", height*0.8)
-            .attr("fill", "url(#linear-gradient)");
-        legendScale.append("text")
-            .attr("x",5)
-            .style("font-size","15px")
-            .attr("y", height*0.8 + 20)
-            .text("0 %");
-
-        // Add explaination for X
-        let legendNoRating = legend.append("g")
-            .attr("class","x-explaination")
-            .attr("transform","translate(0,+"+(height*0.8+20+15)+")");
-        legendNoRating.append("rect")
-            .attr("y",-25)
-            .attr("transform","scale(0.5)")
-            .attr("width", width_of_field)
-            .attr("height",height_of_field)
-            .attr("fill", "url(#no_rating)");
-        legendNoRating.append("text")
-            .style("font-size","15px")
-            .attr("x", width_of_field * 0.5)
-            .attr("y", 4)
-            .text("No Rating");
 
         /**
          * Moves the triangle from the legend to the specified element and position
@@ -205,21 +198,27 @@
          * @param value
          */
         function moveTriangeToValue(type, value) {
-            let x = 0;
-            let y = 2.5;
+            let x = -3;
+            let y = 5;
             if (type === "values") {
-                y = y +(1-value) * (height*0.8);
+                x = x +value * (width);
 
-                d3.select("#triangle-text").text(Math.round(value*10000)/100+" %")
+                d3.select("#triangle-text").transition().delay(300).text(Math.round(value*10000)/100+" %");
+
+                triangle
+                    .transition()
+                    .delay(300)
+                    .attr("transform", "rotate(180) translate("+-x+","+y+")")
             } else if (type === "x-explanation") {
-                y = (height*0.8+20+15);
-                d3.select("#triangle-text").text("");
+                y = 37;
+                d3.select("#triangle-text").transition().delay(300).text("");
+
+                triangle
+                    .transition()
+                    .delay(300)
+                    .attr("transform", "rotate(90) translate("+y+","+-x+")")
             }
 
-            triangle
-                .transition()
-                .delay(300)
-                .attr("transform", "rotate(90) translate("+y+","+x+")")
         }
 
         function drawHeatMap() {
@@ -289,7 +288,7 @@
                     if (d.value === -1) {
                         return "url(#no_rating)"
                     }
-                    return myColor(d.value)
+                    return ratingColorScale(d.value)
                 })
                 .on("mouseover", function(d) {
                     if (d.value === -1) {
@@ -300,10 +299,174 @@
             })
         }
 
+        function drawTimeOverlapHeatmap(selected_sujects) {
+            let data = generateTimeoverlapChartData(selected_sujects);
+            let timeoverlapWidth = width_of_field * selected_sujects.length;
+            let timeoverlapHeight = height_of_field * selected_sujects.length;
+
+            let siblingSvg = document.getElementById('rating-map');
+            let timeoverlapOffsetLeft = siblingSvg.getAttribute("width") - -margin.right;
+
+            // Build Y scales and axis:
+            let y = d3.scaleBand()
+                .range([ timeoverlapHeight, 0 ])
+                .domain(selected_sujects.map(d => {
+                    return d.name;
+                }))
+                .padding(0.0);
+
+            // Build X axis:
+            var x = d3.scaleBand()
+                .range([ 0, timeoverlapWidth ])
+                .domain(selected_sujects.map(d => {
+                    return d.name
+                }))
+                .padding(0.0);
+
+            // move after rating map
+            let svg = d3.select("#timeoverlap-matrix")
+                .attr("width", timeoverlapWidth)
+                .attr("height", timeoverlapHeight)
+                .attr("transform", "translate("+(timeoverlapOffsetLeft)+", "+margin.top +")")
+                .append("g");
+
+            // show subject names on x axis
+            svg.append("g")
+                .attr("class", "timeoverlap-x-axis")
+                .call(d3.axisTop(x))
+                .selectAll("text")
+                .attr("y", 0)
+                .attr("x", 5)
+                .attr("dy", -5)
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "start");
+
+            //append rects
+            svg.append("g")
+                .attr("id", "timeoverlap-content");
+
+            let matrix = d3.select("#timeoverlap-content")
+                .selectAll("rect")
+                .data(data);
+
+            matrix.enter()
+                .append("rect")
+                .attr("class", function(d) {
+                    let classes = "cell ";
+                    if (d.subjectA.name === d.subjectB.name) {
+                        return classes + "overlap-identity";
+                    }
+
+                    if (d.overlaps.length === 0) {
+                        return classes + "overlap-nothing";
+                    } else {
+                        for (let entry of d.overlaps){
+                            if (entry.severity === "critical") {
+                                return classes + "overlap-critical";
+                            }
+                        }
+                        return classes + "overlap-edge";
+                    }
+                })
+                .attr("width", width_of_field)
+                .attr("height", height_of_field)
+                .attr("x", function (d) {
+                    return x(d['subjectB'].name)
+                })
+                .attr("y", function (d) {
+                    return y(d['subjectA'].name)
+                }).on("mouseover", function(d) {
+                    drawTimeoverlapContentDetail(d)
+            });
+        }
+
+        function drawTimeoverlapContentDetail(selectedOverlap) {
+            console.log(selectedOverlap);
+            //append all timetable entries for subjectA
+            renderTimetableEnttriesForSubject(selectedOverlap.subjectA, '#subjectA')
+
+        }
+
+        function renderTimetableEnttriesForSubject(subject, id) {
+            let data = d3.select(id)
+                .html(function(d){
+                    let html = `
+                        <h4>${subject.name}</h4>
+                        <div class='time-entries'>`;
+                    for (let entry of subject.timetable) {
+                        html += `
+                            <div class="time-entry">
+                                <div>Day: ${entry.day}</div>
+                                <div>Time: ${entry.time.from} to ${entry.time.to}</div>
+                                <div>Duration: ${(Object.keys(entry.duration).indexOf("from") < 0 )? entry.duration: entry.duration.from + " to " +entry.duration.to}</div>
+                             </div>
+                        `
+                    }
+                    html += "</div>";
+                    return html;
+                });
+        }
+
+        function createTimeoverlapContentDetail() {
+            let x = document.getElementById('timeoverlap-content').getBoundingClientRect().width;
+
+            d3.select("#timeoverlap-matrix").select("g")
+                .append("g")
+                .attr("transform","translate("+x+","+0+")")
+                .attr("id", "overlap-content-details")
+                .append("foreignObject")
+                .attr("id", "subjectA");
+
+            d3.select('#overlap-content-details')
+                .append("foreignObject")
+                .attr("id", "subjectB")
+        }
+
+        function drawTitles() {
+            let ratingX = -margin.left/4;
+            let ratingY = -20;
+
+            let overlapWidth = document.getElementById('timeoverlap-content').getBoundingClientRect().width;
+            let contentDetailWidth = 300;
+
+            d3.select('#rating-map').select("g")
+                .append("text")
+                .attr("transform", "translate("+ratingX+","+ratingY+")")
+                .attr("class","map-header")
+                .text("Ratings");
+
+            d3.select('#timeoverlap-matrix')
+                .append("rect")
+                .attr("class","map-underline")
+                .attr("x",0)
+                .attr("y",0)
+                .attr("width", overlapWidth + contentDetailWidth)
+                .attr("height", 2);
+            d3.select('#timeoverlap-matrix')
+                .append("text")
+                .attr("transform", "translate("+overlapWidth+",0)")
+                .attr("x",0)
+                .attr("y", -4)
+                .style("text-anchor","start")
+                .attr("class","map-header")
+                .text("Time overlaps")
+
+        }
+
+        // apply pen and zooming
+        let zoom = d3.zoom()
+            .on("zoom", () => {
+                console.log("zoom");
+                d3.select('#move-group').attr("transform", d3.event.transform)
+            });
+        d3.select('#heatmaps').call(zoom);
+
         drawHeatMap();
         drawSwsChart(selected_subjects);
+        drawTimeOverlapHeatmap(selected_subjects);
+        createTimeoverlapContentDetail();
+        drawTitles();
         renderRemovedSubjects(removedSubjects);
-
-      </script>
+    </script>
   </body>
 </html>

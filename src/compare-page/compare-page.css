@@ -44,13 +44,10 @@ body {
 #amount_of_sws {
     font-size: 1.5em;
 }
-#heatmap {
-    margin-top:10%;
-    display: flex;
-    justify-content: center;
+
+svg {
+    border: 1px solid black;
 }
-
-
 main {
     grid-row: 1/1;
     grid-column: 1/2;
@@ -114,6 +111,51 @@ main {
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
+}
+
+.overlap-identity {
+    fill: whitesmoke;
+}
+
+.overlap-nothing {
+    fill: lightgrey;
+}
+
+.overlap-edge {
+    fill: indianred;
+}
+
+.overlap-critical {
+    fill: darkred;
+}
+
+.map-header {
+    font-size: xx-large;
+    font-style: italic;
+    font-variant: small-caps;
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.map-underline {
+    fill: black;
+}
+
+.time-entry {
+    width: auto;
+    height: auto;
+    font-size: 0.7em;
+    margin-bottom: 10px;
+}
+
+.time-entries {
+    width: auto;
+    height: auto;
+}
+
+foreignObject {
+    width: 300px;
+    height: 800px;
 }
 
 
