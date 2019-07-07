@@ -1,5 +1,7 @@
 var selected_subjects = loadSelectedSubjects();
 var removedSubjects = loadRemovedSubjects();
+let overlapMap = null;
+
 
 /**
  *  Removes subject with specified index and visualisation
@@ -35,7 +37,7 @@ function drawSwsChart(selected_subjects) {
 
     // calculate sum of sws and count different sws
     for (subject of selected_subjects) {
-        let sws = subject.sws.replace(/ /g,'');
+        let sws = (subject.sws)?subject.sws.replace(/ /g,''):"0";
         if (sws === "" || sws === 'undefefined') {
             sws = "0";
             subject.sws = "*";
@@ -204,6 +206,8 @@ function updateViz() {
     drawHeatMap();
     drawSwsChart(selected_subjects);
     renderRemovedSubjects(removedSubjects);
+    if (overlapMap)
+        overlapMap.draw(selected_subjects, generateTimeoverlapChartData(selected_subjects));
 }
 
 /**
@@ -294,3 +298,14 @@ function generateTimeoverlapChartData(selectedSubjects) {
     }
     return data;
 }
+
+function createTimeoverlapHeatmap(fieldWidth, fieldHeight) {
+    overlapMap = new TimeoverlapHeatMap('timeoverlap-matrix');
+
+    let siblingSvg = document.getElementById('rating-map');
+    let timeoverlapOffsetLeft =  +siblingSvg.getAttribute("width") +25;
+
+    overlapMap.init(selected_subjects, fieldWidth,fieldHeight,timeoverlapOffsetLeft, margin.top);
+    return overlapMap;
+}
+

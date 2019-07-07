@@ -142,10 +142,13 @@ main {
 }
 
 .time-entry {
+    display: flex;
+    flex-flow: column;
     width: auto;
     height: auto;
-    font-size: 0.7em;
+    font-size: 1em;
     margin-bottom: 10px;
+    margin-left: 7px
 }
 
 .time-entries {
@@ -153,9 +156,25 @@ main {
     height: auto;
 }
 
-foreignObject {
-    width: 300px;
-    height: 800px;
+#tooltip {
+    position: absolute;
+    line-height: 1;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+    display: none;
+    flex-flow: row;
+}
+.timetable-tooltip-subject {
+    margin: 5px;
+    max-width: 400px;
 }
 
-
+.time-entry-overlap {
+    margin-bottom: 10px;
+}
+.time-entry-overlap > .time-entry {
+    color: lightcoral;
+}

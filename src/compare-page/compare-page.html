@@ -6,8 +6,9 @@
     <link rel="stylesheet" href="compare-page.css"/>
     <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
     <script src="../scripts/app-local-storage.js"></script>
-    <script type="text/javascript" src="compare-page.js"></script>
     <script src="../data/subject_ratings.js"></script>
+    <script src="scripts/timeoverlaps.js"></script>
+    <script src="compare-page.js"></script>
     <script src="../scripts/d3.js"></script>
 </head>
 <body>
@@ -56,7 +57,7 @@
             </div>
         </div>
     </nav>
-
+    <div id="tooltip"></div>
     <script>
 
         setSvgHightToParentsWidth();
@@ -90,7 +91,7 @@
 
         // append the svg object to the body of the page
         var svg = d3.select("#rating-map")
-          .attr("width", width + margin.left + width_of_legend)
+          .attr("width", width + margin.left)
           .attr("height", height + margin.top + margin.bottom)
             .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -239,10 +240,10 @@
             height = height_of_field * selected_subjects.length;
 
             // delete labels and rectangles
-            d3.selectAll('.heatmap-label')
+            d3.select("#rating-map").selectAll('.heatmap-label')
                 .remove();
 
-            d3.selectAll('.cell').remove();
+            d3.select("#rating-map").selectAll('.cell').remove();
 
             // Build Y scales and axis:
             var y = d3.scaleBand()
@@ -264,8 +265,6 @@
                     let index = selected_subjects.findIndex((subject) => (subject.name === d));
                     if (index >= 0) {
                         removeSubject(index);
-                        console.log(selected_subjects);
-                        drawHeatMap();
                     }
                 });
 
@@ -299,127 +298,61 @@
             })
         }
 
-        function drawTimeOverlapHeatmap(selected_sujects) {
-            let data = generateTimeoverlapChartData(selected_sujects);
-            let timeoverlapWidth = width_of_field * selected_sujects.length;
-            let timeoverlapHeight = height_of_field * selected_sujects.length;
+        function showTimeTooltip(timeOverlap) {
+            console.log(timeOverlap)
+            let body = document.getElementsByTagName("body")[0];
+            let mouse = d3.mouse(body);
+            d3.select("#tooltip")
+                .style("display","flex")
+                .style("left", mouse[0]+10+"px")
+                .style("top", mouse[1] + "px")
+                .on("mouseover", function(d) {
+                    d3.select(this).style("display","none")
+                })
+                .html(function() {
+                    let html = "";
 
-            let siblingSvg = document.getElementById('rating-map');
-            let timeoverlapOffsetLeft = siblingSvg.getAttribute("width") - -margin.right;
+                    let subjects = ['subjectA', 'subjectB'];
+                    let overlapedSubjects = ['with','from'];
 
-            // Build Y scales and axis:
-            let y = d3.scaleBand()
-                .range([ timeoverlapHeight, 0 ])
-                .domain(selected_sujects.map(d => {
-                    return d.name;
-                }))
-                .padding(0.0);
+                    for (let i = 0; i<2; i++) {
+                        let subject = timeOverlap[subjects[i]];
+                        let overlapSubject = overlapedSubjects[i]
+                        let semester = (subject.hasOwnProperty("semester"))? subject.semester: "".concat( ...subject.semesters, " ");
+                        let subjectHtml = `
+                        <div class="timetable-tooltip-subject">
+                        <h6>${subject.name}</h6><p>${semester}</p>`;
 
-            // Build X axis:
-            var x = d3.scaleBand()
-                .range([ 0, timeoverlapWidth ])
-                .domain(selected_sujects.map(d => {
-                    return d.name
-                }))
-                .padding(0.0);
 
-            // move after rating map
-            let svg = d3.select("#timeoverlap-matrix")
-                .attr("width", timeoverlapWidth)
-                .attr("height", timeoverlapHeight)
-                .attr("transform", "translate("+(timeoverlapOffsetLeft)+", "+margin.top +")")
-                .append("g");
-
-            // show subject names on x axis
-            svg.append("g")
-                .attr("class", "timeoverlap-x-axis")
-                .call(d3.axisTop(x))
-                .selectAll("text")
-                .attr("y", 0)
-                .attr("x", 5)
-                .attr("dy", -5)
-                .attr("transform", "rotate(-45)")
-                .style("text-anchor", "start");
-
-            //append rects
-            svg.append("g")
-                .attr("id", "timeoverlap-content");
-
-            let matrix = d3.select("#timeoverlap-content")
-                .selectAll("rect")
-                .data(data);
-
-            matrix.enter()
-                .append("rect")
-                .attr("class", function(d) {
-                    let classes = "cell ";
-                    if (d.subjectA.name === d.subjectB.name) {
-                        return classes + "overlap-identity";
-                    }
-
-                    if (d.overlaps.length === 0) {
-                        return classes + "overlap-nothing";
-                    } else {
-                        for (let entry of d.overlaps){
-                            if (entry.severity === "critical") {
-                                return classes + "overlap-critical";
-                            }
+                        let overlaps ='<div class="time-entry-overlap">Overlaping';
+                        for (let overlap of timeOverlap.overlaps) {
+                            let entry = overlap[overlapSubject];
+                            overlaps += `
+                                <div class="time-entry">
+                                    <span>Day: ${entry.day}</span>
+                                    <span>Time: ${entry.time.from} to ${entry.time.to}</span>
+                                    <span>Duration: ${(Object.keys(entry.duration).indexOf("from") < 0) ? entry.duration : entry.duration.from + " to " + entry.duration.to}</span>
+                                </div>
+                                `;
                         }
-                        return classes + "overlap-edge";
-                    }
-                })
-                .attr("width", width_of_field)
-                .attr("height", height_of_field)
-                .attr("x", function (d) {
-                    return x(d['subjectB'].name)
-                })
-                .attr("y", function (d) {
-                    return y(d['subjectA'].name)
-                }).on("mouseover", function(d) {
-                    drawTimeoverlapContentDetail(d)
-            });
-        }
 
-        function drawTimeoverlapContentDetail(selectedOverlap) {
-            console.log(selectedOverlap);
-            //append all timetable entries for subjectA
-            renderTimetableEnttriesForSubject(selectedOverlap.subjectA, '#subjectA')
+                        subjectHtml += overlaps + `</div><div class='time-entries'> All`;
 
-        }
-
-        function renderTimetableEnttriesForSubject(subject, id) {
-            let data = d3.select(id)
-                .html(function(d){
-                    let html = `
-                        <h4>${subject.name}</h4>
-                        <div class='time-entries'>`;
-                    for (let entry of subject.timetable) {
-                        html += `
+                        for (let entry of subject.timetable) {
+                            subjectHtml += `
                             <div class="time-entry">
-                                <div>Day: ${entry.day}</div>
-                                <div>Time: ${entry.time.from} to ${entry.time.to}</div>
-                                <div>Duration: ${(Object.keys(entry.duration).indexOf("from") < 0 )? entry.duration: entry.duration.from + " to " +entry.duration.to}</div>
+                                <span>Day: ${entry.day}</span>
+                                <span>Time: ${entry.time.from} to ${entry.time.to}</span>
+                                <span>Duration: ${(Object.keys(entry.duration).indexOf("from") < 0) ? entry.duration : entry.duration.from + " to " + entry.duration.to}</span>
                              </div>
                         `
+                        }
+                        subjectHtml += "</div></div>";
+                        html += subjectHtml;
                     }
-                    html += "</div>";
                     return html;
-                });
-        }
+                })
 
-        function createTimeoverlapContentDetail() {
-            let x = document.getElementById('timeoverlap-content').getBoundingClientRect().width;
-
-            d3.select("#timeoverlap-matrix").select("g")
-                .append("g")
-                .attr("transform","translate("+x+","+0+")")
-                .attr("id", "overlap-content-details")
-                .append("foreignObject")
-                .attr("id", "subjectA");
-
-            d3.select('#overlap-content-details')
-                .append("foreignObject")
-                .attr("id", "subjectB")
         }
 
         function drawTitles() {
@@ -427,6 +360,7 @@
             let ratingY = -20;
 
             let overlapWidth = document.getElementById('timeoverlap-content').getBoundingClientRect().width;
+            let overlapheight = document.getElementById('timeoverlap-content').getBoundingClientRect().height;
             let contentDetailWidth = 300;
 
             d3.select('#rating-map').select("g")
@@ -436,20 +370,13 @@
                 .text("Ratings");
 
             d3.select('#timeoverlap-matrix')
-                .append("rect")
-                .attr("class","map-underline")
-                .attr("x",0)
-                .attr("y",0)
-                .attr("width", overlapWidth + contentDetailWidth)
-                .attr("height", 2);
-            d3.select('#timeoverlap-matrix')
                 .append("text")
-                .attr("transform", "translate("+overlapWidth+",0)")
-                .attr("x",0)
-                .attr("y", -4)
+                .attr("transform", "translate("+overlapWidth+","+overlapheight/2+")")
+                .attr("x",10)
+                .attr("y", "0.5em")
                 .style("text-anchor","start")
                 .attr("class","map-header")
-                .text("Time overlaps")
+                .text("Time overlaps");
 
         }
 
@@ -463,10 +390,12 @@
 
         drawHeatMap();
         drawSwsChart(selected_subjects);
-        drawTimeOverlapHeatmap(selected_subjects);
-        createTimeoverlapContentDetail();
-        drawTitles();
+        //drawTimeOverlapHeatmap(selected_subjects);
+        //drawTitles();
         renderRemovedSubjects(removedSubjects);
+        createTimeoverlapHeatmap(width_of_field, height_of_field);
+        console.log(overlapMap);
+        overlapMap.draw(selected_subjects, generateTimeoverlapChartData(selected_subjects));
     </script>
   </body>
 </html>
