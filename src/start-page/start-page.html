@@ -1,33 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Select your Studyprogram</title>
-    <script type="text/javascript" src="start-page.js"></script>
 
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Course Catalog</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="../scripts/bootstrap/bootstrap.min.css" rel="stylesheet"/>
+  <link href="start-page.css" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="css/scrolling-nav.css" rel="stylesheet">
     <script type="text/javascript" src="../data/studyprograms.js"></script>
-    <script src="d3.js"></script>
+    <script src="../scripts/d3.js"></script>
 
+    <script type="text/javascript" src="../scripts/app-local-storage.js"></script>
 </head>
-<body>
-<!-- Navigation -->
-<nav class="w3-bar w3-black">
-  <a href="index.html">Home</a>
-  <a href="start-page.html" class="selected">start-page</a>
-  <a href="compare-page.html">compare-page</a>
-  <a href="select-page.html" >select-page</a>
-    <select id="programs" value="select a studyprogram">
 
-    </select>
-</nav>
-<script>
-    d3.select("#programs")
-        .selectAll('option')
-        .data(studyprograms)
-        .enter()
-    .append("option")
-    .attr("value", d => d.name)
-    .text(d => d.name)
-</script>
+<body id="page-top">
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#page-top">Course Catalog</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#services">Links</a>
+          </li>
+          </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-primary text-white">
+    <div class="container text-center">
+      <h1>Welcome to Course Catalog</h1>
+      <p class="lead">Get your EDUCATION now!</p>
+    </div>
+  </header>
+
+
+  <section id="select page" class="bg-light">
+    <div class="container">
+      <div class="row">
+          <div class="col-12">
+              <div class="input-group mb-3">
+                  <input type="text" class="form-control" id="search" placeholder="Filter..." aria-label="filter" oninput="filterPrograms(this.value)">
+              </div>
+              <div id="programs" class="col-12">
+                        <ul class="list-group col-6" id="program-list">
+                        </ul>
+                        <div id="program-detail" class="row col-6">
+                            <div id="names" class="col-6"></div>
+                            <div id="name-bars" class="col-6"></div>
+                        </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2>About Course Catalog</h2>
+          <p class="lead">It's a great place for students to view the courses that are offered by University Duisburg-Essen:</p>
+          <ul>
+            <li>Visual analysis to support decision making on the selection of the courses</li>
+            <li>Based on course catalog data</li>
+            <li>Planning courses according to the semesters</li>
+            <li>Students can select the courses and be able to compare them based on various aspects such as recommendation, understandability and so on which are done by those who have already passed the listed course</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2>Useful Links</h2>
+          <ul>
+          <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/en/university.php" role="button">About University</a></li>
+          <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/en/study_courses.php" role="button">Study Courses</a></li>
+          <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/en/faculties.php" role="button">Faculties</a></li>
+          <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/international/index_en.shtml" role="button">International Office</a></li>
+          
+        </ul>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; Group 4 - Vesuvius</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="../scripts/bootstrap/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom JavaScript for this theme -->
+  <script src="js/scrolling-nav.js"></script>
+
+  <script>
+      function go_to_selection_page() {
+          console.log("clicked");
+          let program_selection = document.getElementById('programs');
+          console.log(studyprograms[program_selection.selectedIndex]);
+          setSelectedStudyprogram(studyprograms[program_selection.selectedIndex])
+      }
+
+      renderList(studyprograms);
+
+      function renderList(data) {
+          // initialize options for select-Tag.
+          let list = d3.select("#program-list")
+              .selectAll('li')
+              .data(data, d => d.name);
+
+          list.exit().remove();
+
+          list
+              .enter()
+              .append("li")
+              .attr("class","list-group-item")
+              .text(d => d.name)
+              .on("click", function(d) {
+                  shwoDetailOfProgram(d);
+              });
+      }
+
+
+      function shwoDetailOfProgram(program) {
+        console.log(Object.keys(program.stats));
+        
+        d3.select('#program-detail').selectAll("#names span").remove();
+        d3.select('#program-detail').select("#next-page-button").remove();
+
+        let names = d3.select('#program-detail')
+            .select("#names").selectAll("span")
+            .data(Object.keys(program.stats));
+        names
+            .enter()
+            .append("span")
+            .text(d=>d);
+
+          let barMaxWidth = document.getElementById("name-bars").getBoundingClientRect().width -30;
+          console.log(barMaxWidth)
+          let maxNumber = Math.max(...Object.values(program.stats));
+          let widthPerNumber = barMaxWidth / maxNumber;
+
+        let bars = d3.select('#name-bars').selectAll(".bar")
+            .data(Object.values(program.stats));
+
+        bars.exit().remove();
+        bars.enter()
+            .append("span")
+            .attr("class", "bar")
+            .style("width", (d) => d*widthPerNumber+ "px")
+            .text((d) => d);
+
+        d3.select('#name-bars')
+            .append("button")
+            .attr("id","next-page-button")
+            .attr("class","btn btn-outline-info")
+            .on("click", function(d) {
+              setSelectedStudyprogram(program);
+              window.location.href='../select-page/select-page.html'
+            })
+            .text("Next")
+      }
+
+      function filterPrograms(value){
+          let filtered_programs = studyprograms.filter((program) => {
+              let words = value.split(" ");
+              for (let w of words) {
+                  if (!(program.name.includes(w))) {
+                      return false;
+                  }
+              }
+              return true;
+          });
+          renderList(filtered_programs);
+      }
+  </script>
 </body>
+
 </html>
