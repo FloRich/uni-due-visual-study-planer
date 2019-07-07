@@ -5,6 +5,11 @@ class TimeoverlapHeatMap {
         this.yScale =  d3.scaleBand();
         this.xScale = d3.scaleBand();
         this.types= ["nothing", "edge", "critical"];
+        this.legendDescription = {
+            "nothing": "No overlapping",
+            "edge": "No time between subjects",
+            "critical": "Overlapping"
+        }
     }
 
     init(subjects, widthOfField, heightOfField, offsetLeft, offsetTop) {
@@ -60,7 +65,7 @@ class TimeoverlapHeatMap {
             .attr("transform", (d,i) => {
                 return "translate(0,"+ (this.cellHeight * i)+")";
             })
-            .text(d => d);
+            .text(d => this.legendDescription[d]);
     }
 
     updateScalesAndLegend(data) {
