@@ -1,6 +1,8 @@
 var selected_subjects = loadSelectedSubjects();
 var removedSubjects = loadRemovedSubjects();
 let overlapMap = null;
+let ratingsMap = null;
+let offsetTop = 300;
 
 
 /**
@@ -203,9 +205,10 @@ function updateViz() {
     setRemovedSubjects(removedSubjects);
 
     //redraw charts
-    drawHeatMap();
     drawSwsChart(selected_subjects);
     renderRemovedSubjects(removedSubjects);
+    if (ratingsMap)
+        ratingsMap.draw(selected_subjects);
     if (overlapMap)
         overlapMap.draw(selected_subjects, generateTimeoverlapChartData(selected_subjects));
 }
@@ -299,13 +302,22 @@ function generateTimeoverlapChartData(selectedSubjects) {
     return data;
 }
 
-function createTimeoverlapHeatmap(fieldWidth, fieldHeight) {
+function createTimeoverlapHeatmap(fieldWidth, fieldHeight, offsetLeft) {
     overlapMap = new TimeoverlapHeatMap('timeoverlap-matrix');
 
     let siblingSvg = document.getElementById('rating-map');
-    let timeoverlapOffsetLeft =  +siblingSvg.getAttribute("width") +25;
+    let timeoverlapOffsetLeft =  +siblingSvg.getAttribute("width") +25 + offsetLeft;
 
-    overlapMap.init(selected_subjects, fieldWidth,fieldHeight,timeoverlapOffsetLeft, margin.top);
+    overlapMap.init(selected_subjects, fieldWidth,fieldHeight,timeoverlapOffsetLeft, offsetTop );
+    overlapMap.draw(selected_subjects, generateTimeoverlapChartData(selected_subjects));
     return overlapMap;
+}
+
+function createRatingsHeatmap(fieldWidth,fieldHeight,offsetLeft) {
+    ratingsMap = new RatingsHeatMap('rating-map', fieldWidth, fieldHeight, offsetLeft, offsetTop);
+
+    ratingsMap.init(selected_subjects);
+    ratingsMap.draw(selected_subjects);
+    return ratingsMap;
 }
 
