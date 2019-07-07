@@ -72,6 +72,10 @@ rect:hover {
     stroke-width: 1.5px;
 }
 
+.semester-ws {
+    text-decoration: underline;
+}
+
 .radial-tree {
     position: fixed;
     height: 99vh;

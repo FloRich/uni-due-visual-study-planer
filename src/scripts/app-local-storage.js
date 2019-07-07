@@ -7,10 +7,12 @@ let SUBJECTS_RETRIEVAL_KEY = "subjects";
  * @returns [Subject]
  */
 function loadSelectedSubjects() {
+    console.log("load selected_subjects");
     let selection = JSON.parse(localStorage.getItem(SUBJECTS_RETRIEVAL_KEY));
     if (selection === null) {
         selection = []
     }
+    console.log(selection);
     return selection;
 }
 
@@ -23,6 +25,8 @@ function setSelectedSubjectsOfNodes(listOfNodes) {
     for (let node of listOfNodes) {
         subjects.push(node.data)
     }
+    console.log("set from nodes")
+    console.log(subjects)
     localStorage.removeItem(SUBJECTS_RETRIEVAL_KEY);
     localStorage.setItem(SUBJECTS_RETRIEVAL_KEY, JSON.stringify(subjects));
 }
@@ -32,6 +36,8 @@ function setSelectedSubjectsOfNodes(listOfNodes) {
  * @param listOfNodes
  */
 function setSelectedSubjects(subjects) {
+    console.log("set selected_subjects");
+    console.log(subject);
     localStorage.removeItem(SUBJECTS_RETRIEVAL_KEY);
     localStorage.setItem(SUBJECTS_RETRIEVAL_KEY, JSON.stringify(subjects));
 }

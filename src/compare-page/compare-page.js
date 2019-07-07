@@ -154,10 +154,10 @@ function renderSWSLegend(domain, swsColorScale) {
  * Displays all subjects that where removed from the heatmap.
  * @param list_of_subjects
  */
-function renderRemovedSubjects(list_of_subjects) {
+function renderRemovedSubjects() {
     let selections = d3.select("#subject-selection")
         .selectAll("li")
-        .data(list_of_subjects, d => d.name);
+        .data(removedSubjects, d => d.name);
 
     //on remove
     selections.exit().remove();
