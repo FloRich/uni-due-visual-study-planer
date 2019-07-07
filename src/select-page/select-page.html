@@ -28,10 +28,10 @@
                     <div id="radial-filter">
                     </div>
                 </div>
-                <svg id="bar-chart"></svg>
-                <div>
+                <div id="marked-subjects">
                     <h4>Marked subjects:</h4>
                     <hr/>
+                    <svg id="bar-chart"></svg>
                     <ul id="subject-selection">
 
                     </ul>
@@ -94,7 +94,7 @@
                 }
                 //let root = tree(d3.hierarchy(selected_studyprogram, children_func));
                 renderFilter();
-                RadialTree.draw(root)
+                radialTree.draw()
             }
 
             let divs = d3.select('#radial-filter')
@@ -121,7 +121,9 @@
 
             let types = divsEnter
                 .append("span")
-                .attr("class", "color-value");
+                .attr("class", (d) => {
+                    return "color-value " +((d === "WiSe 2018/19")? "semester-ws":"");
+                });
 
             types.merge(types)
                 .text((d) => d)
@@ -160,9 +162,9 @@
 
         function removeSelectedSubject(subject) {
             //remove
-            RadialTree.removeSelectedSubjectNode(subject);
+            radialTree.removeSelectedSubjectNode(subject);
             //update viz
-            RadialTree.draw(root);
+            radialTree.draw();
         }
 
         function mapSubjectSelectionToBarData(subjectSelection) {
@@ -204,25 +206,39 @@
 
         //render barchart
         let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
+
         BarChart.init("bar-chart",nav_width-30,200);
 
-        let root = RadialTree.init(selected_studyprogram, colormap, type_filter_settings, function() {
-            console.log("render selection");
-            renderFilter();
-            console.log(RadialTree.getSelection());
-            if (RadialTree.getSelection().length > 0) {
-                BarChart.draw(mapSubjectSelectionToBarData(RadialTree.getSelection()));
-            }
-            renderSelection(RadialTree.getSelection());
-            //update local storage
-            // wird bei jedem rendern aufgerufen... auch wenn man mit der maus drüber geht
-            setSelectedSubjectsOfNodes(RadialTree.getSelection());
+        let radialTree = new RadialTree('radial-tree',
+            function() {
+                console.log("render selection");
 
+                console.log(radialTree.getSelection());
+                renderFilter();
+                console.log(radialTree.getSelection());
+                BarChart.draw(mapSubjectSelectionToBarData(radialTree.getSelection()));
+
+                renderSelection(radialTree.getSelection());
+                //update local storage
+                // wird bei jedem rendern aufgerufen... auch wenn man mit der maus drüber geht
+                setSelectedSubjectsOfNodes(radialTree.getSelection());
+            });
+
+        let root = radialTree.init(selected_studyprogram, colormap, type_filter_settings);
+        //set previous selection
+        radialTree.loadSelectedSubjects(prev_selection);
+        radialTree.draw();
+
+        //set Interactivity for bar chart with radial-tree
+        BarChart.setHoverFn((d) => {
+            radialTree.setHighlightedType(d.categories);
+            radialTree.draw();
+        });
+        BarChart.setMouseOutFn((d) => {
+            radialTree.resetHighlightType();
+            radialTree.draw();
         });
 
-        //set previous selection
-        RadialTree.loadSelectedSubjects(root, prev_selection);
-        RadialTree.draw(root);
 
     </script>
 </body>

@@ -1,6 +1,30 @@
 var selected_subjects = loadSelectedSubjects();
 var removedSubjects = loadRemovedSubjects();
+let overlapMap = null;
+let ratingsMap = null;
+let offsetTop = 300;
 
+
+/**
+ *  Removes subject with specified index and visualisation
+ */
+function removeSubject(index) {
+    let removed = selected_subjects.splice(index,1);
+    removedSubjects.push(...removed);
+
+    updateViz();
+}
+
+function setSvgHightToParentsWidth() {
+    // fit svg size to parents size
+    let main = document.getElementsByTagName('main')[0];
+    let bounding = main.getBoundingClientRect();
+
+    let sideMenuHeight = document.getElementsByTagName('nav')[0].clientHeight;
+    d3.select('#heatmaps')
+        .attr("width", bounding.width)
+        .attr("height", "100vh");
+}
 
 /**
  * Draws a stacked-bar Chart with one bar for sws of all given subjects.
@@ -15,7 +39,7 @@ function drawSwsChart(selected_subjects) {
 
     // calculate sum of sws and count different sws
     for (subject of selected_subjects) {
-        let sws = subject.sws.replace(/ /g,'');
+        let sws = (subject.sws)?subject.sws.replace(/ /g,''):"0";
         if (sws === "" || sws === 'undefefined') {
             sws = "0";
             subject.sws = "*";
@@ -130,10 +154,10 @@ function renderSWSLegend(domain, swsColorScale) {
  * Displays all subjects that where removed from the heatmap.
  * @param list_of_subjects
  */
-function renderRemovedSubjects(list_of_subjects) {
+function renderRemovedSubjects() {
     let selections = d3.select("#subject-selection")
         .selectAll("li")
-        .data(list_of_subjects, d => d.name);
+        .data(removedSubjects, d => d.name);
 
     //on remove
     selections.exit().remove();
@@ -181,7 +205,119 @@ function updateViz() {
     setRemovedSubjects(removedSubjects);
 
     //redraw charts
-    drawHeatMap();
     drawSwsChart(selected_subjects);
     renderRemovedSubjects(removedSubjects);
+    if (ratingsMap)
+        ratingsMap.draw(selected_subjects);
+    if (overlapMap)
+        overlapMap.draw(selected_subjects, generateTimeoverlapChartData(selected_subjects));
 }
+
+/**
+ * Checks whether two entries from timetables are overlapping
+ * @param entryA entry from a timetable. Has to have attributes day, time and duration
+ * @param entryB entry from another timetable. Has to have same attributes.
+ * @returns {*} - False:  if the do not overlap.
+ *              - edge: if the just overlap in the same minute. E.g startA = 10.00 and endB = 10.00
+ *              - critical: if the overlap in time.
+ */
+function checkForTimeOverlap(entryA, entryB) {
+    // check if durations do not overlap
+    let durationA = entryA.duration;
+    let durationB = entryB.duration;
+    if ((durationB.from < durationA.from && durationB.to < durationA.from) ||
+        (durationB.from > durationA.to && durationB.to > durationA.to)) {
+            return false;
+    }
+
+    // check if days do not overlap
+    if (entryB.day !== entryA.day) {
+        return false;
+    }
+
+    // check if time does not overlap
+    let timeA = entryA.time;
+    let timeB = entryB.time;
+    if ((timeB.from < timeA.from && timeB.to < timeA.from) ||
+        (timeB.from > timeA.to && timeB.to > timeA.to)) {
+        return false;
+    }
+
+    // everything is overlapping. Check if it is critical e.g full overlap or if just the edges are overlapping
+    if (timeB.from === timeA.to || timeB.to === timeA.from) {
+        return "edge"
+    }
+
+    // the two different entries overlap in time completely
+    return "critical"
+}
+
+/**
+ * Calculate overlapping of time-entries for different timetables
+ * @param timetableA first timetable
+ * @param timetableB second timetable
+ * @returns {Array} A list of pairs of entries with the type of overlap
+ */
+function calculateTimeoverlaps(timetableA, timetableB) {
+    let overlappings = [];
+    for (let entryA of timetableA) {
+        for (let entryB of timetableB) {
+            let result = checkForTimeOverlap(entryA, entryB);
+            if (result !== false) {
+                overlappings.push({
+                    severity: result,
+                    from: entryB,
+                    with: entryA
+                })
+            }
+        }
+    }
+    return overlappings;
+}
+
+/**
+ * Generates data for the timeoverlap chart by comparing differences in timetables of subjects
+ * @param selectedSubjects A list of subjects
+ * @returns {Array} A list of all combinations of subjects and their overlaps (can be empty).
+ */
+function generateTimeoverlapChartData(selectedSubjects) {
+    let data = [];
+    for (let subjectA of selectedSubjects) {
+        for (let subjectB of selectedSubjects) {
+            if (subjectA !== subjectB) {
+                data.push({
+                    subjectA: subjectA,
+                    subjectB: subjectB,
+                    overlaps: calculateTimeoverlaps(subjectA.timetable, subjectB.timetable)
+                })
+            } else {
+                data.push({
+                    subjectA: subjectA,
+                    subjectB: subjectB,
+                    overlaps: []
+                })
+            }
+        }
+    }
+    return data;
+}
+
+function createTimeoverlapHeatmap(fieldWidth, fieldHeight, offsetLeft) {
+    overlapMap = new TimeoverlapHeatMap('timeoverlap-matrix');
+
+    let siblingSvg = document.getElementById('rating-map');
+    let timeoverlapOffsetLeft =  +siblingSvg.getAttribute("width") +25 + offsetLeft;
+
+    overlapMap.init(selected_subjects, fieldWidth,fieldHeight,timeoverlapOffsetLeft, offsetTop );
+    overlapMap.draw(selected_subjects, generateTimeoverlapChartData(selected_subjects));
+    return overlapMap;
+}
+
+function createRatingsHeatmap(fieldWidth,fieldHeight,offsetLeft) {
+    ratingsMap = new RatingsHeatMap('rating-map', fieldWidth, fieldHeight, offsetLeft, offsetTop);
+
+    ratingsMap.init(selected_subjects);
+    ratingsMap.draw(selected_subjects);
+    return ratingsMap;
+}
+

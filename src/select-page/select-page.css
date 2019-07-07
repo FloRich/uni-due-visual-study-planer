@@ -72,6 +72,10 @@ rect:hover {
     stroke-width: 1.5px;
 }
 
+.semester-ws {
+    text-decoration: underline;
+}
+
 .radial-tree {
     position: fixed;
     height: 99vh;
@@ -83,4 +87,8 @@ rect:hover {
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
+}
+
+#marked-subjects {
+    margin-top: 15px;
 }

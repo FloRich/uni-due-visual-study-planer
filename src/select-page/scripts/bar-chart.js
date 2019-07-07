@@ -12,6 +12,9 @@ var BarChart = (function() {
     let xAxis;
     let yAxis;
     let svg;
+    let hoverFn = (d) => d;
+    let mouseOutFn = (d) => d;
+
     function drawChart() {
         svg = d3.select('#'+svgElementId)
             .attr("width", width + margin.left + margin.right)
@@ -41,9 +44,7 @@ var BarChart = (function() {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text("Value ($)");
-
     }
-
 
     //public attributes
     return {
@@ -64,6 +65,12 @@ var BarChart = (function() {
                 .ticks(5);
 
            drawChart();
+        },
+        setHoverFn: (fn) => {
+            hoverFn = fn;
+        },
+        setMouseOutFn: (fn) => {
+            mouseOutFn = fn
         },
         draw: function(data) {
             x.domain(data.map(function (d) {
@@ -97,7 +104,9 @@ var BarChart = (function() {
             // enter
             let barEnter = bar.enter().append("rect")
                 .attr("class","bar")
-                .style("fill", "steelblue");
+                .style("fill", "steelblue")
+                .on("mouseover", d => hoverFn(d))
+                .on("mouseout", d => mouseOutFn(d));
 
             // enter + update
             barEnter.merge(bar)
