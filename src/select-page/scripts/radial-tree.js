@@ -10,7 +10,7 @@ var RadialTree = (function() {
         height = +svg.attr("height"),
         radius = 800,
         g = svg.append("g");
-    let higlightType = "";
+    let highlightType = "";
     let zoom = d3.zoom()
         .on("zoom", () => {
             g.attr("transform", d3.event.transform)
@@ -151,9 +151,9 @@ var RadialTree = (function() {
             return false;
         }
 
-        if (higlightType === "") {
+        if (highlightType === "") {
             return false;
-        } else if (higlightType === d.data.subject_type) {
+        } else if (highlightType === d.data.subject_type) {
             return (selectedSubjects.indexOf(d) < 0);
         } else {
             return true;
@@ -183,8 +183,8 @@ var RadialTree = (function() {
         },
         getSelection: () => selectedSubjects,
         removeSelectedSubjectNode: (node) => deselectSubject(node),
-        setHighlightedType: (type) => { higlightType = type;},
-        resetHighlightType: () => { higlightType = "";},
+        setHighlightedType: (type) => { highlightType = type;},
+        resetHighlightType: () => { highlightType = "";},
         draw: (root) => {
             let dataTextLengths = {};
 

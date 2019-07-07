@@ -164,21 +164,23 @@
 
         }
 
-        // apply pen and zooming
-        let zoom = d3.zoom()
-            .on("zoom", () => {
-                console.log("zoom");
-                d3.select('#move-group').attr("transform", d3.event.transform)
-            });
-        d3.select('#heatmaps').call(zoom);
+        if (selected_subjects.length > 0) {
+            // apply pen and zooming
+            let zoom = d3.zoom()
+                .on("zoom", () => {
+                    console.log("zoom");
+                    d3.select('#move-group').attr("transform", d3.event.transform)
+                });
+            d3.select('#heatmaps').call(zoom);
 
-        drawSwsChart(selected_subjects);
-        renderRemovedSubjects(removedSubjects);
+            drawSwsChart(selected_subjects);
+            renderRemovedSubjects(removedSubjects);
 
-        createRatingsHeatmap(width_of_field, height_of_field,400);
-        createTimeoverlapHeatmap(width_of_field, height_of_field, 400);
-        console.log(overlapMap);
-        console.log(ratingsMap);
+            createRatingsHeatmap(width_of_field, height_of_field, 400);
+            createTimeoverlapHeatmap(width_of_field, height_of_field, 400);
+         } else {
+            alert("You do not have marked any subjets. Please go back and select some!")
+        }
     </script>
   </body>
 </html>

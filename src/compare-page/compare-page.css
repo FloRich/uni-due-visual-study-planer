@@ -45,9 +45,6 @@ body {
     font-size: 1.5em;
 }
 
-svg {
-    border: 1px solid black;
-}
 main {
     grid-row: 1/1;
     grid-column: 1/2;
