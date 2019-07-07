@@ -176,6 +176,7 @@ class RatingsHeatMap {
         this.yScaleElement
             .call(d3.axisLeft(this.yScale))
             .selectAll("text")
+            .attr("class","heatmap-label")
             .on("click", function(d) {
                 let index = selected_subjects.findIndex((subject) => (subject.name === d));
                 if (index >= 0) {
