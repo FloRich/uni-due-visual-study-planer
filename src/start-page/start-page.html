@@ -126,12 +126,7 @@
   <script src="js/scrolling-nav.js"></script>
 
   <script>
-      function go_to_selection_page() {
-          console.log("clicked");
-          let program_selection = document.getElementById('programs');
-          console.log(studyprograms[program_selection.selectedIndex]);
-          setSelectedStudyprogram(studyprograms[program_selection.selectedIndex])
-      }
+      let lastItem = null;
 
       renderList(studyprograms);
 
@@ -149,6 +144,12 @@
               .attr("class","list-group-item")
               .text(d => d.name)
               .on("click", function(d) {
+                  if (lastItem ) {
+                      d3.select(lastItem).attr("class","list-group-item")
+                  }
+                  d3.select(this).attr("class", "list-group-item active");
+                  lastItem = this;
+
                   shwoDetailOfProgram(d);
               });
       }
