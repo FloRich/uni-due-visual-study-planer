@@ -12,9 +12,13 @@ class TimeoverlapHeatMap {
         }
     }
 
+    getLengthOfArray(array) {
+        return [...new Set(array.map((d)=>d.name))].length;
+    }
+
     init(subjects, widthOfField, heightOfField, offsetLeft, offsetTop) {
-        this.width = widthOfField * subjects.length;
-        this.height = heightOfField * subjects.length;
+        this.width = widthOfField * this.getLengthOfArray(subjects);
+        this.height = heightOfField * this.getLengthOfArray(subjects);
         this.cellWidth = widthOfField;
         this.cellHeight = heightOfField;
         this.offsetLeft = offsetLeft;
@@ -69,8 +73,8 @@ class TimeoverlapHeatMap {
     }
 
     updateScalesAndLegend(data) {
-        this.width = this.cellWidth * data.length;
-        this.height = this.cellHeight * data.length;
+        this.width = this.cellWidth * this.getLengthOfArray(data);
+        this.height = this.cellHeight * this.getLengthOfArray(data);
 
         // update scales
         this.yScale = d3.scaleBand()

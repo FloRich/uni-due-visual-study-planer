@@ -92,3 +92,11 @@ rect:hover {
 #marked-subjects {
     margin-top: 15px;
 }
+
+#studyprogram-name {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    z-index: 2;
+    font-size: 0.7em;
+}

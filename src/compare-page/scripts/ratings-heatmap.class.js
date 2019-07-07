@@ -10,9 +10,13 @@ class RatingsHeatMap {
 
     }
 
+    getLengthOfArray(array) {
+        return [...new Set(array.map((d)=>d.name))].length;
+    }
+
     init(subjects) {
         this.width = this.cellWidth * this.xlabels.length;
-        this.height = this.cellHeight * subjects.length;
+        this.height = this.cellHeight * this.getLengthOfArray(subjects);
 
         this.map = d3.select(this.elementId)
             .attr("width", this.width)
@@ -24,8 +28,6 @@ class RatingsHeatMap {
         this.xScale = d3.scaleBand()
             .range([0, this.width])
             .domain(this.xlabels);
-        console.log(this.width)
-        console.log(this.xScale);
 
         this.yScale = d3.scaleBand()
             .range([this.height, 0])
@@ -187,7 +189,7 @@ class RatingsHeatMap {
     }
 
     draw(subjects) {
-        this.height = this.cellHeight * subjects.length;
+        this.height = this.cellHeight * this.getLengthOfArray(subjects);
 
         this.updateAxisAndLegend(subjects);
 
@@ -210,7 +212,7 @@ class RatingsHeatMap {
             .remove();
 
         let rect = this.contentElement.selectAll(".cell")
-            .data(flattened_data, (d) => d);
+            .data(flattened_data, (d) => d.name);
 
         rect.exit().remove();
 

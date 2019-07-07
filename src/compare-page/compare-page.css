@@ -175,3 +175,11 @@ main {
 .time-entry-overlap > .time-entry {
     color: lightcoral;
 }
+
+#studyprogram-name {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    z-index: 2;
+    font-size: 0.7em;
+}

@@ -14,6 +14,7 @@
 </head>
 <body>
     <main>
+        <div id="studyprogram-name"></div>
         <svg id="heatmaps">
             <defs>
                 <pattern id="no_rating" x="0" y="0"  width="50" height="50">
@@ -164,6 +165,8 @@
 
         }
 
+        let studyprogram = loadSelectedStudyprogram();
+        d3.select("#studyprogram-name").text(studyprogram.name);
         if (selected_subjects.length > 0) {
             // apply pen and zooming
             let zoom = d3.zoom()
