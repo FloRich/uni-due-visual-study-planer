@@ -74,6 +74,8 @@ class RatingsHeatMap {
         this.contentElement = this.map
             .append("g")
             .attr("class", "ratings-content");
+
+        this.lastSubjects = subjects;
     }
 
     createLegend() {
@@ -196,15 +198,16 @@ class RatingsHeatMap {
         for (let name of subjectNames) {
             this.subjectsToHighlight.add(name);
         }
+        this.draw(this.lastSubjects);
     }
 
     removeHighlightingOfSubjectNames() {
         this.subjectsToHighlight = new Set();
+        this.draw(this.lastSubjects);
     }
 
-
-
     draw(subjects) {
+        this.lastSubjects = subjects;
         this.height = this.cellHeight * this.getLengthOfArray(subjects);
 
         this.updateAxisAndLegend(subjects);

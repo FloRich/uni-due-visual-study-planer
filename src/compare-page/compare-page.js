@@ -86,7 +86,17 @@ function drawSwsChart(selected_subjects) {
     // append new representation
     let divs = sws.enter()
         .append('div')
-        .attr('class','sws-subject');
+        .attr('class','sws-subject')
+        .on("mouseover", (d) => {
+            if (ratingsMap != null){
+                ratingsMap.highlightSubjectNames([d.name]);
+            }
+        })
+        .on("mouseout", (d) => {
+            if (ratingsMap != null) {
+                ratingsMap.removeHighlightingOfSubjectNames();
+            }
+        });
 
     let values = divs
         .append('div')
@@ -96,7 +106,6 @@ function drawSwsChart(selected_subjects) {
     let names = divs
         .append('div')
         .attr('class','sws-name')
-        //.style("line-height", d => d.sws * height_per_sws +"px")
         .text(d => d.name);
 
 

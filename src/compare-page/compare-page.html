@@ -104,12 +104,10 @@
             overlapMap.onCellOver = (d) => {
                 showTimeTooltip(d);
                 ratingsMap.highlightSubjectNames([d.subjectA.name, d.subjectB.name]);
-                ratingsMap.draw(selected_subjects);
             };
 
             overlapMap.onCellOut = (d) => {
                 ratingsMap.removeHighlightingOfSubjectNames();
-                ratingsMap.draw(selected_subjects);
             }
          } else {
             alert("You do not have marked any subjets. Please go back and select some!")
