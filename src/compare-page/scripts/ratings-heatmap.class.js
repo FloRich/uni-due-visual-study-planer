@@ -8,7 +8,6 @@ class RatingsHeatMap {
         this.elementId = '#'+elementId;
         this.xlabels = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
         this.subjectsToHighlight = new Set();
-        console.log(this.subjectsToHighlight);
     }
 
     getLengthOfArray(array) {

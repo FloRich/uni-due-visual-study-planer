@@ -101,7 +101,6 @@ class TimeoverlapHeatMap {
     }
 
     drawContent(data) {
-        console.log(data);
         let content = this.contentElement
             .selectAll(".cell")
             .data(data, d => d.name);
