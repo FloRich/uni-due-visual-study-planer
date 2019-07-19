@@ -100,7 +100,7 @@
           <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/en/study_courses.php" role="button">Study Courses</a></li>
           <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/en/faculties.php" role="button">Faculties</a></li>
           <li><a class="btn btn-outline-dark" href="https://www.uni-due.de/international/index_en.shtml" role="button">International Office</a></li>
-          
+
         </ul>
       </div>
     </div>
@@ -157,7 +157,7 @@
 
       function shwoDetailOfProgram(program) {
         console.log(Object.keys(program.stats));
-        
+
         d3.select('#program-detail').selectAll("#names span").remove();
         d3.select('#program-detail').select("#next-page-button").remove();
 
@@ -178,12 +178,13 @@
             .data(Object.values(program.stats));
 
         bars.exit().remove();
-        bars.enter()
+        let barsEnter = bars.enter()
             .append("span")
-            .attr("class", "bar")
+            .attr("class", "bar");
+
+        barsEnter.merge(bars)
             .style("width", (d) => d*widthPerNumber+ "px")
             .text((d) => d);
-
         d3.select('#name-bars')
             .append("button")
             .attr("id","next-page-button")
