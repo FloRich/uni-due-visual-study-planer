@@ -183,3 +183,12 @@ main {
     z-index: 2;
     font-size: 0.7em;
 }
+
+.text-highlight {
+    font-size: 1.25em;
+    font-weight: bold;
+}
+
+#heatmaps {
+    height: 100vh;
+}

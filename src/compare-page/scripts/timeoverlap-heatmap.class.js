@@ -137,8 +137,19 @@ class TimeoverlapHeatMap {
             })
             .attr("y", (d) => {
                 return this.yScale(d['subjectA'].name)
-            }).on("mouseover", showTimeTooltip);
+            }).on("mouseover", (d) => {
+                this.onCellOver(d);
+            }).on("mouseout", d => {
+                this.onCellOut(d);
+        })
+    }
 
+    onCellOver(d) {
+        console.log("this method should be overwritten");
+    }
+
+    onCellOut(d) {
+        console.log("this method should be overwritten");
     }
 
     draw(subjects, overlapData) {

@@ -1,10 +1,17 @@
-var selected_subjects = loadSelectedSubjects();
-var removedSubjects = loadRemovedSubjects();
+var selected_subjects;
+var removedSubjects;
 let overlapMap = null;
 let ratingsMap = null;
 let offsetTop = 300;
 
 
+/**
+ * Loads the selected and removed subjects.
+ */
+function initialzeSubjectLists() {
+    selected_subjects = loadSelectedSubjects();
+    removedSubjects = loadRemovedSubjects();
+}
 /**
  *  Removes subject with specified index and visualisation
  */
@@ -15,15 +22,17 @@ function removeSubject(index) {
     updateViz();
 }
 
-function setSvgHightToParentsWidth() {
+/**
+ * Sets the width of the svg to the same value as its parent
+ */
+function setSvgWidthToParentsWidth() {
     // fit svg size to parents size
     let main = document.getElementsByTagName('main')[0];
     let bounding = main.getBoundingClientRect();
 
     let sideMenuHeight = document.getElementsByTagName('nav')[0].clientHeight;
     d3.select('#heatmaps')
-        .attr("width", bounding.width)
-        .attr("height", "100vh");
+        .attr("width", bounding.width);
 }
 
 /**
@@ -302,6 +311,71 @@ function generateTimeoverlapChartData(selectedSubjects) {
     return data;
 }
 
+/**
+ * Renders a tooltip for time-overlap-map.
+ * @param timeOverlap data of the timeoverlap of two subjects
+ */
+function showTimeTooltip(timeOverlap) {
+    let body = document.getElementsByTagName("body")[0];
+    let mouse = d3.mouse(body);
+    d3.select("#tooltip")
+        .style("display","flex")
+        .style("left", mouse[0]+10+"px")
+        .style("top", mouse[1] + "px")
+        .on("mouseover", function(d) {
+            d3.select(this).style("display","none")
+        })
+        .html(function() {
+            let html = "";
+            let subjects = ['subjectA', 'subjectB'];
+            let overlapedSubjects = ['with','from'];
+
+            for (let i = 0; i<2; i++) {
+                let subject = timeOverlap[subjects[i]];
+                let overlapSubject = overlapedSubjects[i];
+                let semester = (subject.hasOwnProperty("semester"))? subject.semester: "".concat( ...subject.semesters, " ");
+                let subjectHtml = `
+                        <div class="timetable-tooltip-subject">
+                        <h6>${subject.name}</h6><p>${semester}</p>`;
+
+
+                let overlaps ='<div class="time-entry-overlap">Overlaping';
+                for (let overlap of timeOverlap.overlaps) {
+                    let entry = overlap[overlapSubject];
+                    overlaps += `
+                                <div class="time-entry">
+                                    <span>Day: ${entry.day}</span>
+                                    <span>Time: ${entry.time.from} to ${entry.time.to}</span>
+                                    <span>Duration: ${(Object.keys(entry.duration).indexOf("from") < 0) ? entry.duration : entry.duration.from + " to " + entry.duration.to}</span>
+                                </div>
+                                `;
+                }
+
+                subjectHtml += overlaps + `</div><div class='time-entries'> All`;
+
+                for (let entry of subject.timetable) {
+                    subjectHtml += `
+                            <div class="time-entry">
+                                <span>Day: ${entry.day}</span>
+                                <span>Time: ${entry.time.from} to ${entry.time.to}</span>
+                                <span>Duration: ${(Object.keys(entry.duration).indexOf("from") < 0) ? entry.duration : entry.duration.from + " to " + entry.duration.to}</span>
+                             </div>
+                        `
+                }
+                subjectHtml += "</div></div>";
+                html += subjectHtml;
+            }
+            return html;
+        })
+}
+
+/**
+ * Creates a Heatmap for timeoverlaps
+ * @param fieldWidth width of a cell
+ * @param fieldHeight height of a cell
+ * @param offsetLeft amount of pixels the map should move to the right.
+ * @returns {TimeoverlapHeatMap}
+ */
 function createTimeoverlapHeatmap(fieldWidth, fieldHeight, offsetLeft) {
     overlapMap = new TimeoverlapHeatMap('timeoverlap-matrix');
 
@@ -313,6 +387,13 @@ function createTimeoverlapHeatmap(fieldWidth, fieldHeight, offsetLeft) {
     return overlapMap;
 }
 
+/**
+ * Creates a heatmap for ratings.
+ * @param fieldWidth width of a cell
+ * @param fieldHeight height of a cell
+ * @param offsetLeft amount of pixels the map should move to the right.
+ * @returns {RatingsHeatMap}
+ */
 function createRatingsHeatmap(fieldWidth,fieldHeight,offsetLeft) {
     ratingsMap = new RatingsHeatMap('rating-map', fieldWidth, fieldHeight, offsetLeft, offsetTop);
 

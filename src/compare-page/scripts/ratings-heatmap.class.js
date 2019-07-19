@@ -7,7 +7,8 @@ class RatingsHeatMap {
         this.offsetTop = offsetTop;
         this.elementId = '#'+elementId;
         this.xlabels = ['recommendation', 'understandability', 'fairness','support','material','interest','fun', 'node_effort'];
-
+        this.subjectsToHighlight = new Set();
+        console.log(this.subjectsToHighlight);
     }
 
     getLengthOfArray(array) {
@@ -176,7 +177,9 @@ class RatingsHeatMap {
         this.yScaleElement
             .call(d3.axisLeft(this.yScale))
             .selectAll("text")
-            .attr("class","heatmap-label")
+            .attr("class",(d) => {
+                return (this.subjectsToHighlight.has(d))? "heatmap-label text-highlight" : "heatmap-label";
+            })
             .on("click", function(d) {
                 let index = selected_subjects.findIndex((subject) => (subject.name === d));
                 if (index >= 0) {
@@ -188,6 +191,18 @@ class RatingsHeatMap {
         this.legend
             .attr("transform","translate("+0+","+ (this.height+30)+")");
     }
+
+    highlightSubjectNames(subjectNames) {
+        for (let name of subjectNames) {
+            this.subjectsToHighlight.add(name);
+        }
+    }
+
+    removeHighlightingOfSubjectNames() {
+        this.subjectsToHighlight = new Set();
+    }
+
+
 
     draw(subjects) {
         this.height = this.cellHeight * this.getLengthOfArray(subjects);
