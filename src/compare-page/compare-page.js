@@ -3,6 +3,7 @@ var removedSubjects;
 let overlapMap = null;
 let ratingsMap = null;
 let offsetTop = 300;
+let hasUnknownSwsPoints = false;
 
 
 /**
@@ -52,6 +53,7 @@ function drawSwsChart(selected_subjects) {
         if (sws === "" || sws === 'undefefined') {
             sws = "0";
             subject.sws = "*";
+            hasUnknownSwsPoints = true;
         } else {
             max_amount_of_sws += +sws;
         }
@@ -128,7 +130,7 @@ function drawSwsChart(selected_subjects) {
 
     // render sum of sws
     d3.select('#amount_of_sws')
-        .html("SWS: &Sigma; "+max_amount_of_sws);
+        .html("SWS: &Sigma; " + max_amount_of_sws + (hasUnknownSwsPoints? '+':''));
 
     renderSWSLegend(domain, swsColorScale);
 }
@@ -165,7 +167,9 @@ function renderSWSLegend(domain, swsColorScale) {
 
     legendTitle
         .merge(legendEnter)
-        .text(d => d +" sws")
+        .text((d) => {
+            return ((d === "*")? 'unknown' : d) +" sws";
+        })
 }
 
 /**
