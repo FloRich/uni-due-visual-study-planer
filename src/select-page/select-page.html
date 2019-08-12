@@ -50,7 +50,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
     </div>
-    <script type="text/javascript" src="scripts/radial-tree.js"></script>
+    <script type="text/javascript" src="scripts/radial-tree.class.js"></script>
     <script type="text/javascript" src="scripts/bar-chart.js"></script>
     <script type="text/javascript" src="../scripts/app-local-storage.js"></script>
     <script>
@@ -211,7 +211,7 @@
 
         BarChart.init("bar-chart",nav_width-30,200);
 
-        let radialTree = new RadialTree('radial-tree',
+        let radialTree = new RadialTreeClass('radial-tree',
             function() {
                 console.log("render selection");
 
