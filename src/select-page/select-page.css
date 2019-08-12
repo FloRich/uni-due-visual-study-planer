@@ -76,7 +76,7 @@ rect:hover {
     text-decoration: underline;
 }
 
-.radial-tree {
+#radial-tree {
     position: fixed;
     height: 99vh;
     width: 99vw;
@@ -94,7 +94,7 @@ rect:hover {
 }
 
 #studyprogram-name {
-    position: absolute;
+    position: fixed;
     left: 5px;
     top: 5px;
     z-index: 2;

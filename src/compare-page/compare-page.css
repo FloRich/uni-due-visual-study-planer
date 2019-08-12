@@ -177,7 +177,7 @@ main {
 }
 
 #studyprogram-name {
-    position: absolute;
+    position: fixed;
     left: 5px;
     top: 5px;
     z-index: 2;
@@ -190,5 +190,6 @@ main {
 }
 
 #heatmaps {
+    position: fixed;
     height: 100vh;
 }
