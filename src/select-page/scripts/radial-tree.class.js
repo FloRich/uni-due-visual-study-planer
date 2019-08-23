@@ -1,12 +1,13 @@
 class RadialTreeClass {
 
-    constructor(elementId, updateFn) {
+    constructor(elementId, d3Instance, updateFn) {
         this.elementId = '#'+elementId;
         this.colormap = {};
         this.type_filter_settings = {};
         this.selectedSubjects = [];
         this.onUpdateFunction = updateFn;
         this.maxTextLength = 15;
+        this.d3 = d3Instance;
     }
 
     /**
@@ -19,7 +20,7 @@ class RadialTreeClass {
         this.type_filter_settings = settings_for_type_filter;
         this.colormap = map_with_colors;
         this.selectedStudyprogram = studyprogram;
-        this.treeSvg = d3.select(this.elementId);
+        this.treeSvg = this.d3.select(this.elementId);
         this.width = +this.treeSvg.attr("width");
         this.height = +this.treeSvg.attr("height");
         this.radius = 800;
@@ -27,17 +28,17 @@ class RadialTreeClass {
         this.highlightType = "";
 
         // apply pen and zooming
-        this.zoom = d3.zoom()
+        this.zoom = this.d3.zoom()
             .on("zoom", () => {
-                this.treeViz.attr("transform", d3.event.transform)
+                this.treeViz.attr("transform", this.d3.event.transform)
             });
         this.treeSvg.call(this.zoom);
 
-        let tree = d3.tree()
+        let tree = this.d3.tree()
             .size([360, this.radius])
             .separation(function(a, b) { return (a.parent === b.parent ? 1 : 2) / a.depth; });
 
-        this.root = tree(d3.hierarchy(this.selectedStudyprogram, this.children_func));
+        this.root = tree(this.d3.hierarchy(this.selectedStudyprogram, this.children_func));
 
         this.draw();
         this.zoomOutToFitParentSize(this.treeViz, this.zoom);
@@ -94,7 +95,7 @@ class RadialTreeClass {
         let midY = maxHeight/2;
 
         let scale = Math.min(maxWidth/currentWidth, maxHeight/currentHeight);
-        let transform = d3.zoomIdentity.translate(midX, midY).scale(scale);
+        let transform = this.d3.zoomIdentity.translate(midX, midY).scale(scale);
 
         this.treeSvg.call(zoom.transform, transform);
     }
@@ -202,6 +203,8 @@ class RadialTreeClass {
      * @param d
      */
     deselectSubject(d) {
+        console.log("delete");
+        console.log(d);
         let index = this.selectedSubjects.indexOf(d);
         this.selectedSubjects.splice(index,1);
         d.isSelected = false;
@@ -343,7 +346,7 @@ class RadialTreeClass {
             subjectsEnter
                 .append("text");
 
-            d3.selectAll(".subject text")
+            this.d3.selectAll(".subject text")
                 .on("click", (d) => {
                     if (this.selectedSubjects.indexOf(d) >= 0) {
                         this.deselectSubject(d);
@@ -367,9 +370,9 @@ class RadialTreeClass {
                 .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
                 .attr("fill", (d) => {
                     if (this.shouldBeLowlighted(d)) {
-                        return d3.rgb(200,200,200);
+                        return this.d3.rgb(200,200,200);
                     }
-                    return d3.rgb(colormap[d.data.subject_type]).darker()
+                    return this.d3.rgb(colormap[d.data.subject_type]).darker()
                 })
                 .text((d) => d.data.name)
                 .each(function(d) {

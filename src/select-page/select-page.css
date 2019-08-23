@@ -6,34 +6,9 @@ main {
     width: 99vw;
 }
 
-rect:hover {
+.bar:hover {
     cursor: pointer;
-}
-
-#toggle-button {
-    position: absolute;;
-    right: .75rem;
-    top: .75rem;
-    z-index: 2;
-    width: 56px;
-    height: 40px;
-    cursor: pointer;
-}
-
-#side-menu {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    width: 350px;
-}
-
-#side-menu > .card .card-body{
-    height: 100%;
-    min-height: 100%;
-}
-
-#side-menu .card > .card-header > h2 {
-    padding-right: 56px;
+    fill-opacity: 0.75;
 }
 
 .filter:hover{
@@ -99,4 +74,30 @@ rect:hover {
     top: 5px;
     z-index: 2;
     font-size: 0.7em;
+}
+
+#toggle-button {
+    position: absolute;;
+    right: .75rem;
+    top: .75rem;
+    z-index: 2;
+    width: 56px;
+    height: 40px;
+    cursor: pointer;
+}
+
+#side-menu {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 350px;
+}
+
+#side-menu > .card .card-body{
+    height: 100%;
+    min-height: 100%;
+}
+
+#side-menu .card > .card-header > h2 {
+    padding-right: 56px;
 }

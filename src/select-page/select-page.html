@@ -5,7 +5,6 @@
     <title>Select Subjects</title>
     <link rel="stylesheet" href="select-page.css"/>
     <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
-    <!--<script type="text/javascript" src="../scripts/bootstrap/bootstrap.bundle.min.js"></script>-->
     <script src="../scripts/d3.js"></script>
     <script type="text/javascript" src="../data/studyprograms.js"></script>
     <script type="text/javascript" src="select-page.js"></script>
@@ -39,7 +38,7 @@
                 </div>
                 <button type="button"
                         class="float-right btn btn-outline-info"
-                        onclick="window.location.href='../compare-page/compare-page.html'">
+                        onclick="goToComparePage()">
                     Next
                 </button>
             </div>
@@ -51,7 +50,7 @@
             </button>
     </div>
     <script type="text/javascript" src="scripts/radial-tree.class.js"></script>
-    <script type="text/javascript" src="scripts/bar-chart.js"></script>
+    <script type="text/javascript" src="scripts/bar-chart.class.js"></script>
     <script type="text/javascript" src="../scripts/app-local-storage.js"></script>
     <script>
         let selected_studyprogram = null;
@@ -80,12 +79,18 @@
         type_filter_settings.add("SoSe 2019");
         type_filter_settings.add("WiSe 2018/19");
 
+        /**
+         * Display or hide navigation
+         */
         function toggleNavigation() {
             console.log("toggle");
             let navMenu = document.getElementById('side-menu');
             navMenu.style.setProperty("display", (navMenu.style.display === "none") ? "block":"none");
         }
 
+        /**
+         * Displays possible filters for the radial tree
+         */
         function renderFilter() {
             function onLegendElementClick(d) {
                 //toggle setting for filter
@@ -132,10 +137,14 @@
                 .style("background-color", (d) => colormap[d]);
         }
 
+        /**
+         * Displays all selected subjects in the navigation view
+         * @param data
+         */
         function renderSelection(data) {
             let selections = d3.select("#subject-selection")
                 .selectAll("li")
-                .data(data, d => d.data.name);
+                .data(data, d => d.data.id);
 
             //on remove
             selections.exit().remove();
@@ -162,6 +171,10 @@
 
         }
 
+        /**
+         * Removes a selected subject from the radial tree.
+         * @param subject
+         */
         function removeSelectedSubject(subject) {
             //remove
             radialTree.removeSelectedSubjectNode(subject);
@@ -169,6 +182,11 @@
             radialTree.draw();
         }
 
+        /**
+         * Converts the selected subjects into a readable format for the bar chart.
+         * @param subjectSelection
+         * @returns {Array}
+         */
         function mapSubjectSelectionToBarData(subjectSelection) {
             let barData = [];
             let subjectTypes = new Map();
@@ -191,6 +209,9 @@
             return barData;
         }
 
+        /**
+         * Fits the radialtree into the full size of the view.
+         */
         function adjustFullSizeOfRadialTreeSvg() {
             let svg = d3.select("#radial-tree");
             let bounds = svg.node().parentElement.getBoundingClientRect();
@@ -209,16 +230,16 @@
         //render barchart
         let nav_width = document.getElementsByClassName("card-body")[0].getBoundingClientRect().width;
 
-        BarChart.init("bar-chart",nav_width-30,200);
+        let barchart = new BarChart(d3);
 
-        let radialTree = new RadialTreeClass('radial-tree',
+        let radialTree = new RadialTreeClass('radial-tree', d3,
             function() {
                 console.log("render selection");
 
                 console.log(radialTree.getSelection());
                 renderFilter();
                 console.log(radialTree.getSelection());
-                BarChart.draw(mapSubjectSelectionToBarData(radialTree.getSelection()));
+                barchart.update(mapSubjectSelectionToBarData(radialTree.getSelection()));
 
                 renderSelection(radialTree.getSelection());
                 //update local storage
@@ -226,22 +247,36 @@
                 setSelectedSubjectsOfNodes(radialTree.getSelection());
             });
 
+        //initialize and display barchart
+
+        let hoverFN = ((d) => {
+            radialTree.setHighlightedType(d.categories);
+            radialTree.draw();
+        });
+
+        let mouseoutFN =((d) => {
+            radialTree.resetHighlightType();
+            radialTree.draw();
+        });
+        barchart.init("bar-chart", nav_width-30, 200, hoverFN, mouseoutFN);
+        barchart.update(mapSubjectSelectionToBarData(radialTree.getSelection()));
+
         let root = radialTree.init(selected_studyprogram, colormap, type_filter_settings);
         //set previous selection
         radialTree.loadSelectedSubjects(prev_selection);
         radialTree.draw();
 
-        //set Interactivity for bar chart with radial-tree
-        BarChart.setHoverFn((d) => {
-            radialTree.setHighlightedType(d.categories);
-            radialTree.draw();
-        });
-        BarChart.setMouseOutFn((d) => {
-            radialTree.resetHighlightType();
-            radialTree.draw();
-        });
-
-
+        /**
+         * Checks if you can go to the next page or not.
+         * If you are allowed to, it will display the compare page.
+         */
+        function goToComparePage() {
+            if (radialTree.getSelection().length === 0) {
+                alert('You have no subjects selected. Please select some');
+            } else {
+                window.location.href='../compare-page/compare-page.html'
+            }
+        }
     </script>
 </body>
 </html>
