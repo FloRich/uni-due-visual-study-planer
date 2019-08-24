@@ -28,7 +28,7 @@ Below are the instruction on how to navigate and use this project:
 1. You can see all the possible information for the subject that you've selected on the previous page (Course Selection)
 2. You can remove a subject that you don't want to have the information about and can do the opposite as well
 
-# Tools/technologies and Libraries used
+# Tools/technologies and libraries used
 
 * HTML
 * Javascript
