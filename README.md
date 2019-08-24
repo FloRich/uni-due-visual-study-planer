@@ -4,7 +4,7 @@ A tool that helps students decide which subjects they can take for a semester by
 
 # Getting Started
 
-Below are the instruction on how to navigate and use this project:
+Below are the instruction on how to navigate and use this project.
 
 # Prerequisites
 
