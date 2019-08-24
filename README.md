@@ -10,6 +10,7 @@ Below are the instruction on how to navigate and use this project.
 
 * Install a light browser on your PC such as Chrome, in order to be able to navigate through the project smoothly
 * Install any code editor of your choice in order to be able to play/practice with the code or have an overview of the it
+* Install Javascript IDE as well as D3.js library
 
 # Steps on running the project + Information
 
