@@ -1,6 +1,6 @@
 # Project: Course Insights
 
-A tool that helps students decide which subjects they can take for a semester by providing visual analysis of the study program.
+This project helps students decide which subjects they can take for a semester by providing visual analysis of the study program.
 
 # Getting Started
 
