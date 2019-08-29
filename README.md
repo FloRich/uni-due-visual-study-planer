@@ -2,17 +2,21 @@
 
 This project helps students decide which subjects they can take for a semester by providing visual analysis of the study program.
 
+A live version can be found at https://florich.github.io/uni-due-visual-study-planer/.
+
 # Getting Started
 
-Below are the instruction on how to navigate and use this project.
+Below are instructions on how to navigate and use this project.
 
 # Prerequisites
 
-* Install a light browser on your PC such as Chrome, in order to be able to navigate through the project smoothly
-* Install any code editor of your choice in order to be able to play/practice with the code or have an overview of the it
-* Install Javascript IDE as well as D3.js library
+* Modern browser that supports most of ES6, like Chrome (newer than v65).
 
-# Steps on running the project + Information
+# Steps on running the project + Informations
+
+**Steps**
+* Download and extract this repository.
+* Navigate to src/start-page and open start-page.html with a browser. You will see the first page.
 
 **First page**: Study program selection
 1. Click on the ***Startpage.html*** file to open up the project
@@ -35,8 +39,9 @@ Below are the instruction on how to navigate and use this project.
 * Javascript
 * D3.js
 * Bootstrap
+* jQuery (Only for scrolling in the start-page.html)
 
-# Inspired by
+# Supervised by
 
 * Professor dr. Mohamed Amine Chatti
 * Dr. Arham Muslim
@@ -44,7 +49,10 @@ Below are the instruction on how to navigate and use this project.
 
 # Versioning
 
-* D3.js version 5.11.0 used to build this project, having installed earlier version of this library and trying to alter the code with that version might cause errors to the code and you won't be able to run the project
+* D3.js version 5.11.0 is used for this project.
+
+# Linked projects
+In order to provide a visualization for the course catalog we had to get data of the courses and combine these course data with ratings found on [meinprof.de](https://www.meinprof.de). Therefor, we created two other projects that extracted and processed data from the course catalog (see https://github.com/FloRich/uni-due-course-catalog-scraper) and from meinprof.de (see https://github.com/FloRich/course-ratings).
 
 # Creators 
 
