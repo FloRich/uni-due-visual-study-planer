@@ -116,12 +116,8 @@ class RadialTreeClass {
      */
     isSubjectFiltered(d) {
         if (RadialTreeClass.isSubject(d)) {
-            let semesters = [];
-            if (d.data.hasOwnProperty("semester")){
-                semesters = [d.data.semester]
-            } else {
-                semesters = d.data['semesters'];
-            }
+            let semesters = d.data.semesters;
+
             if (this.type_filter_settings.has(d.data.subject_type)) {
                 for (let sem of semesters) {
                     if (this.type_filter_settings.has(sem)) {
@@ -358,8 +354,9 @@ class RadialTreeClass {
                 })
                 .attr("class", function(d) {
                     let attrib = (d.isSelected)? "selected": "";
-                    if(d.data.hasOwnProperty("semester")) {
-                        return attrib + ((d.data.semester === "WiSe 2018/19")? " semester-ws": " semester-ss");
+                    if(d.data.hasOwnProperty("semesters")) {
+                        const semesters = d.data.semesters.join();
+                        return attrib + ((semesters.includes("WiSe 2018/19"))? " semester-ws": " semester-ss");
                     } else {
                         return attrib;
                     }

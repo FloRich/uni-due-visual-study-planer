@@ -346,7 +346,7 @@ function showTimeTooltip(timeOverlap) {
             for (let i = 0; i<2; i++) {
                 let subject = timeOverlap[subjects[i]];
                 let overlapSubject = overlapedSubjects[i];
-                let semester = (subject.hasOwnProperty("semester"))? subject.semester: "".concat( ...subject.semesters, " ");
+                let semester = subject.semesters.join(' '); //(subject.hasOwnProperty("semester"))? subject.semester: "".concat( ...subject.semesters, " ");
                 let subjectHtml = `
                         <div class="timetable-tooltip-subject">
                         <h6>${subject.name}</h6><p>${semester}</p>`;

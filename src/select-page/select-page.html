@@ -24,7 +24,7 @@
             </div>
             <div class="card-body">
                 <div>
-                    <span>Show only:</span>
+                    <span>Show:</span>
                     <div id="radial-filter">
                     </div>
                 </div>
@@ -53,16 +53,13 @@
     <script type="text/javascript" src="scripts/bar-chart.class.js"></script>
     <script type="text/javascript" src="../scripts/app-local-storage.js"></script>
     <script>
-        let selected_studyprogram = null;
-
-        selected_studyprogram = loadSelectedStudyprogram();
+        let selected_studyprogram = loadSelectedStudyprogram();
         d3.select("#studyprogram-name").text(selected_studyprogram.name);
 
         let colormap = {};
         let stats_names = [];
         let type_filter_settings = new Set();
         let colors = d3.schemeSet3;
-        let originalNavigationWidth = document.getElementById('side-menu').getAttribute("width");
 
         //mapping colors to attributes colors
         for (let key in selected_studyprogram.stats) {
@@ -248,7 +245,6 @@
             });
 
         //initialize and display barchart
-
         let hoverFN = ((d) => {
             radialTree.setHighlightedType(d.categories);
             radialTree.draw();
@@ -261,6 +257,7 @@
         barchart.init("bar-chart", nav_width-30, 200, hoverFN, mouseoutFN);
         barchart.update(mapSubjectSelectionToBarData(radialTree.getSelection()));
 
+        //display radial tree
         let root = radialTree.init(selected_studyprogram, colormap, type_filter_settings);
         //set previous selection
         radialTree.loadSelectedSubjects(prev_selection);
