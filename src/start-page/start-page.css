@@ -1,0 +1,40 @@
+#programs {
+    height: 500px;
+    display: flex;
+    flex-flow: row;
+}
+#program-list {
+    overflow: scroll;
+    height: 100%;
+}
+
+li {
+    cursor: pointer;
+}
+
+#names {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-end;
+}
+
+#names > span {
+    margin: 1px;
+}
+#name-bars {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+}
+
+#name-bars > .btn {
+    align-self: flex-end;
+}
+
+.bar {
+    background: lightblue;
+    margin: 1px;
+    text-align: end;
+}
+
+

@@ -3,9 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <title>Compare Subjects</title>
-    <script type="text/javascript" src="compare-page.js"></script>
+    <link rel="stylesheet" href="compare-page.css"/>
+    <link rel="stylesheet" href="../scripts/bootstrap/bootstrap.min.css"/>
+    <script src="../scripts/app-local-storage.js"></script>
+    <script src="../data/subject_ratings.js"></script>
+    <script src="scripts/timeoverlap-heatmap.class.js"></script>
+    <script src="scripts/ratings-heatmap.class.js"></script>
+    <script src="compare-page.js"></script>
+    <script src="../scripts/d3.js"></script>
 </head>
 <body>
+    <main>
+        <div id="studyprogram-name"></div>
+        <svg id="heatmaps">
+            <defs>
+                <pattern id="no_rating" x="0" y="0"  width="50" height="50">
+                    <line x1="7" x2="18" y1="7" y2="18" class="cross-line"></line>
+                    <line x1="18" x2="7" y1="7" y2="18" class="cross-line"></line>
+                </pattern>
+            </defs>
+            <g id="move-group">
+                <g id="rating-map">
+                </g>
+                <g id="timeoverlap-matrix">
+                </g>
+            </g>
+        </svg>
+    </main>
+    <nav id="side-menu">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    Step 2: Compare
+                </h2>
+                <h4> Decide which subjects you want to take </h4>
+            </div>
+            <div class="card-body">
+                <section id="sws">
+                    <div id="amount_of_sws">
+                    </div>
+                </section>
+                <div id="sws-legend">
+                    <span>Legend:</span>
+                    <div id="sws-legend-items">
 
-</body>
+                    </div>
+                </div>
+                <br/>
+                <section id="removed_subjects">
+                    <h6>Removed Subjects</h6>
+                    <hr/>
+                    <ul id="subject-selection">
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </nav>
+    <div id="tooltip"></div>
+    <script>
+        initialzeSubjectLists();
+        setSvgWidthToParentsWidth();
+
+        // save ratings by the subjects name
+        let subjects_dict = new Map();
+        for (let subject of subjects) {
+            subjects_dict.set(subject.name, subject);
+        }
+
+        // add ratings to the subject if it exists.
+        for (let sub of selected_subjects) {
+            let rating = subjects_dict.get(sub.name);
+            if (rating !== undefined) {
+                sub['rating'] = rating;
+            } else {
+                sub['rating'] = {};
+            }
+        }
+
+        let width_of_field = 25;
+        let height_of_field = 25;
+        let studyprogram = loadSelectedStudyprogram();
+
+        d3.select("#studyprogram-name").text(studyprogram.name);
+
+        if (selected_subjects.length > 0) {
+            // apply pen and zooming to svg
+            let zoom = d3.zoom()
+                .on("zoom", () => {
+                    d3.select('#move-group').attr("transform", d3.event.transform)
+                });
+            d3.select('#heatmaps').call(zoom);
+
+            // render right control menu
+            drawSwsChart(selected_subjects);
+            renderRemovedSubjects();
+
+            // render heatmaps
+            let ratingsMap = createRatingsHeatmap(width_of_field, height_of_field, 400);
+            let overlapMap = createTimeoverlapHeatmap(width_of_field, height_of_field, 400);
+            overlapMap.onCellOver = (d) => {
+                showTimeTooltip(d);
+                ratingsMap.highlightSubjectNames([d.subjectA.name, d.subjectB.name]);
+            };
+
+            overlapMap.onCellOut = (d) => {
+                ratingsMap.removeHighlightingOfSubjectNames();
+            }
+         } else {
+            alert("You do not have marked any subjects. Please go back and select some!")
+        }
+    </script>
+  </body>
 </html>

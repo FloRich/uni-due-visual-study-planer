@@ -1,0 +1,103 @@
+body {
+}
+
+main {
+    height: 99vh;
+    width: 99vw;
+}
+
+.bar:hover {
+    cursor: pointer;
+    fill-opacity: 0.75;
+}
+
+.filter:hover{
+    cursor: pointer;
+    box-shadow: 0 0  1em rgba(0, 0, 0, 0.2);
+}
+.node text {
+    font: 10px sans-serif;
+}
+
+.node--internal circle {
+    fill: #555;
+}
+
+.node--internal text {
+    text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+.node text:hover {
+    cursor: default;
+    font-size: large;
+}
+.selected {
+    font-size: xx-large;
+    font-weight: bold;
+}
+.subject:hover {
+    cursor: pointer;
+    font-size: large;
+}
+
+.link {
+    fill: none;
+    stroke: #555;
+    stroke-opacity: 0.4;
+    stroke-width: 1.5px;
+}
+
+.semester-ws {
+    text-decoration: underline;
+}
+
+#radial-tree {
+    position: fixed;
+    height: 99vh;
+    width: 99vw;
+}
+
+.selected-item {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#marked-subjects {
+    margin-top: 15px;
+}
+
+#studyprogram-name {
+    position: fixed;
+    left: 5px;
+    top: 5px;
+    z-index: 2;
+    font-size: 0.7em;
+}
+
+#toggle-button {
+    position: absolute;;
+    right: .75rem;
+    top: .75rem;
+    z-index: 2;
+    width: 56px;
+    height: 40px;
+    cursor: pointer;
+}
+
+#side-menu {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 350px;
+}
+
+#side-menu > .card .card-body{
+    height: 100%;
+    min-height: 100%;
+}
+
+#side-menu .card > .card-header > h2 {
+    padding-right: 56px;
+}
