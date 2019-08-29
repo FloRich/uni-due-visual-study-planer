@@ -52,7 +52,7 @@ Below are instructions on how to navigate and use this project.
 * D3.js version 5.11.0 is used for this project.
 
 # Linked projects
-In order to provide a visualization for the course catalog we had to get data of the courses and combine these course data with ratings found on [meinprof.de](https://www.meinprof.de). Therefor, we created two other projects that extracted and processed data from the course catalog (see https://github.com/FloRich/uni-due-course-catalog-scraper) and from meinprof.de (see https://github.com/FloRich/course-ratings).
+In order to provide a visualization for the [course catalog](https://campus.uni-due.de/lsf/rds?state=wtree&search=1&category=veranstaltung.browse&navigationPosition=lectures%2Clectureindex&breadcrumb=lectureindex&topitem=lectures&subitem=lectureindex) we had to get data of the courses and combine these course data with ratings found on [meinprof.de](https://www.meinprof.de). Therefor, we created two other projects that extracted and processed data from the course catalog (see https://github.com/FloRich/uni-due-course-catalog-scraper) and from meinprof.de (see https://github.com/FloRich/course-ratings).
 
 # Creators 
 
