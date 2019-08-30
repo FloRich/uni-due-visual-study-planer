@@ -61,7 +61,7 @@ In order to provide a visualization for the [course catalog](https://campus.uni-
 * Ritesh Damera
 * Amin Shahin
 
-#Project Architecture and Components
+# Project Architecture and Components
 
 
 ![image](https://user-images.githubusercontent.com/41328290/63997396-a2012a00-cafe-11e9-919a-cd7d5f7894b3.png)
