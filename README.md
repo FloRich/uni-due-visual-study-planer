@@ -4,8 +4,8 @@ This project helps students decide which subjects they can take for a semester b
 
 **Main Idea**
 
-1. Students from different study fields to find the subjects offered by various departments 
-2. Interactive interface of Select and Compare Pages 
+1. Being able to find the subjects offered by various departments 
+2. Having interactive interface of Select and Compare Pages 
 3. Clear idea of subject based on ratings 
 4. Clear overview of whether or not to choose a subject 
 
