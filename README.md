@@ -64,5 +64,19 @@ In order to provide a visualization for the [course catalog](https://campus.uni-
 
 
 
+![image](https://user-images.githubusercontent.com/41328290/63997302-636b6f80-cafe-11e9-8942-01e09a0cd926.png)
+
+![image](https://user-images.githubusercontent.com/41328290/63997396-a2012a00-cafe-11e9-919a-cd7d5f7894b3.png)
+
+![image](https://user-images.githubusercontent.com/41328290/63997432-c2c97f80-cafe-11e9-9d66-ca7aecc1c0ac.png)
+
+![image](https://user-images.githubusercontent.com/41328290/63997452-d5dc4f80-cafe-11e9-8a51-ba7ae25da9bc.png)
+
+![image](https://user-images.githubusercontent.com/41328290/63997480-eb517980-cafe-11e9-8eb8-e3777e34d7be.png)
+
+
+
+
+
 
 
