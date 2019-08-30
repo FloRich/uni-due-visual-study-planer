@@ -36,9 +36,13 @@ Below are instructions on how to navigate and use this project.
 2. You can also select the subjects right from the radial tree itself and view the infromation on the sidebar
 3. After selecting your subject click next to get to the next page 
 
+![image](https://user-images.githubusercontent.com/41328290/63997452-d5dc4f80-cafe-11e9-8a51-ba7ae25da9bc.png)
+
 **Third page**: Course comparison and an overview of timeoverlap (if there's any) alongside other related information
 1. You can see all the possible information for the subject that you've selected on the previous page (Course Selection)
 2. You can remove a subject that you don't want to have the information about and can do the opposite as well
+
+![image](https://user-images.githubusercontent.com/41328290/63997480-eb517980-cafe-11e9-8eb8-e3777e34d7be.png)
 
 # Tools/technologies and libraries used
 
@@ -79,9 +83,6 @@ The blue rectangles represents components which consists of a html, css and java
 
 ![image](https://user-images.githubusercontent.com/41328290/63997432-c2c97f80-cafe-11e9-9d66-ca7aecc1c0ac.png)
 
-![image](https://user-images.githubusercontent.com/41328290/63997452-d5dc4f80-cafe-11e9-8a51-ba7ae25da9bc.png)
-
-![image](https://user-images.githubusercontent.com/41328290/63997480-eb517980-cafe-11e9-8eb8-e3777e34d7be.png)
 
 
 
