@@ -31,6 +31,8 @@ Below are instructions on how to navigate and use this project.
 3. After selection you'll be provided with some additional information about number of lectures, seminars, internships and other related information
 4. Now click on next to get to the next page 
 
+![image](https://user-images.githubusercontent.com/41328290/63997432-c2c97f80-cafe-11e9-9d66-ca7aecc1c0ac.png)
+
 **Second page**: Course Selection
 1. Select any of the boxes that matches your interest to have an overview of the subjects regardingly
 2. You can also select the subjects right from the radial tree itself and view the infromation on the sidebar
@@ -81,7 +83,7 @@ In order to provide a visualization for the [course catalog](https://campus.uni-
 
 The blue rectangles represents components which consists of a html, css and javascript file and access the global script, css, and data folder for using the datasets and frameworks. The blue big arrow indicates the navigation possibilities and is only in one direction, because the app guides the user through the process. But if something unpredictable like a crash of the browser, accidentally closing it or going back through the browser implemented navigation buttons happen, the previous state of the component will be retrieved from the local storage, because every component exchanges their data over the local storage with every other component. If data changes in a component, it will be automatically saved to the local storage. In the page for selecting component we created a reusable class for representing the radial-tree and one for the bar chart. The “page for comparing”-component has two different classes for heat maps, one for the ratings and one for showing which of the selected courses overlaps in time with each other. Additionally it provides a modified stacked bar chart for displaying the semester week hours (sws) for all selected courses.
 
-![image](https://user-images.githubusercontent.com/41328290/63997432-c2c97f80-cafe-11e9-9d66-ca7aecc1c0ac.png)
+
 
 
 
