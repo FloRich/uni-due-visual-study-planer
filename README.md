@@ -11,6 +11,12 @@ This project helps students decide which subjects they can take for a semester b
 
 A live version can be found at https://florich.github.io/uni-due-visual-study-planer/.
 
+# Project Architecture and Components
+
+![image](https://user-images.githubusercontent.com/41328290/63997396-a2012a00-cafe-11e9-919a-cd7d5f7894b3.png)
+
+The blue rectangles represents components which consists of a html, css and javascript file and access the global script, css, and data folder for using the datasets and frameworks. The blue big arrow indicates the navigation possibilities and is only in one direction, because the app guides the user through the process. But if something unpredictable like a crash of the browser, accidentally closing it or going back through the browser implemented navigation buttons happen, the previous state of the component will be retrieved from the local storage, because every component exchanges their data over the local storage with every other component. If data changes in a component, it will be automatically saved to the local storage. In the page for selecting component we created a reusable class for representing the radial-tree and one for the bar chart. The “page for comparing”-component has two different classes for heat maps, one for the ratings and one for showing which of the selected courses overlaps in time with each other. Additionally it provides a modified stacked bar chart for displaying the semester week hours (sws) for all selected courses.
+
 # Getting Started
 
 Below are instructions on how to navigate and use this project.
@@ -45,12 +51,6 @@ Below are instructions on how to navigate and use this project.
 2. You can remove a subject that you don't want to have the information about and can do the opposite as well
 
 ![image](https://user-images.githubusercontent.com/41328290/63997480-eb517980-cafe-11e9-8eb8-e3777e34d7be.png)
-
-# Project Architecture and Components
-
-![image](https://user-images.githubusercontent.com/41328290/63997396-a2012a00-cafe-11e9-919a-cd7d5f7894b3.png)
-
-The blue rectangles represents components which consists of a html, css and javascript file and access the global script, css, and data folder for using the datasets and frameworks. The blue big arrow indicates the navigation possibilities and is only in one direction, because the app guides the user through the process. But if something unpredictable like a crash of the browser, accidentally closing it or going back through the browser implemented navigation buttons happen, the previous state of the component will be retrieved from the local storage, because every component exchanges their data over the local storage with every other component. If data changes in a component, it will be automatically saved to the local storage. In the page for selecting component we created a reusable class for representing the radial-tree and one for the bar chart. The “page for comparing”-component has two different classes for heat maps, one for the ratings and one for showing which of the selected courses overlaps in time with each other. Additionally it provides a modified stacked bar chart for displaying the semester week hours (sws) for all selected courses.
 
 # Tools/technologies and libraries used
 
